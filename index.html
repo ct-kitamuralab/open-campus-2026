@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="千葉工業大学 高度応用情報科学科のオープンキャンパス特設ページ。学び体験のスライド、ベイズ統計ワークの振り返り、発展デモを掲載しています。">
+  <title>高度応用情報科学科 オープンキャンパス特設ページ</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="トップへ">
+      <span class="brand-mark">OC</span>
+      <span>高度応用情報科学科 OC</span>
+    </a>
+    <nav aria-label="ページ内メニュー">
+      <a href="#experience">当日の体験</a>
+      <a href="#demo">発展デモ</a>
+      <a href="#learn">学科の学び</a>
+      <a class="nav-button" href="#slides">スライド</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">千葉工業大学 高度応用情報科学科</p>
+        <p class="event-name">Open Campus Special</p>
+        <h1>高度応用情報科学科<span>オープンキャンパス特設ページ</span></h1>
+        <p class="experience-label">学び体験：<strong>~ データから箱の中身を推理しよう！ ベイズ統計学入門 ~ 編</strong></p>
+        <p class="hero-lead">
+          当日のワークでは、少ない情報から予想し、新しい情報を見て考えを更新する「ベイズ統計」の考え方を体験していただきました。
+          このサイトでは、当日のスライド、4つの問題の振り返り、どこでも試せる発展デモをまとめています。
+        </p>
+        <div class="hero-actions">
+          <a class="primary-button" href="dowsing/">発展デモで遊ぶ</a>
+          <a class="secondary-button" href="slides/bayes-statistics-open-campus.pdf">当日のスライドを見る</a>
+        </div>
+      </div>
+      <div class="hero-card" aria-label="ベイズ推論の流れ">
+        <div><strong>1</strong><span>最初の予想</span></div>
+        <i>+</i>
+        <div><strong>2</strong><span>新しい情報</span></div>
+        <i>=</i>
+        <div><strong>3</strong><span>予想を更新</span></div>
+      </div>
+    </section>
+
+    <section id="experience" class="intro section">
+      <div class="section-heading">
+        <p class="eyebrow">TODAY'S EXPERIENCE</p>
+        <h2>当日の学び体験</h2>
+        <p>ワークでは、情報が増えるたびに「どちらが正しそうか」を考え直しました。</p>
+      </div>
+      <div class="intro-grid">
+        <article>
+          <span>Predict</span>
+          <p>最初に、手がかりが少ない状態で予想する。</p>
+        </article>
+        <article>
+          <span>Observe</span>
+          <p>箱が開く、娘がいると聞く、検査で陽性と出る、球の色を見るなど、新しい情報を得る。</p>
+        </article>
+        <article>
+          <span>Update</span>
+          <p>その情報を見た後に、どちらが正しそうかを更新する。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="demo" class="demo-link section">
+      <div>
+        <p class="eyebrow">ADVANCED DEMO</p>
+        <h2>発展デモ：ベイズ宝探し</h2>
+        <p>
+          「2つの箱」では、球の色を何度も見て、Aの箱かBの箱かを推理しました。
+          ベイズ宝探しではセンサー反応から場所を推理し、学科クラスタリングでは文章データから学科同士の近さを可視化します。
+        </p>
+        <p>1分だけ触るだけでも、データを集めながら予想や見え方が変わる感覚を体験できます。</p>
+      </div>
+      <div class="hero-actions">
+        <a class="primary-button" href="dowsing/">ベイズ宝探しを試す</a>
+        <a class="secondary-button" href="clustering/">学科クラスタリングを見る</a>
+      </div>
+    </section>
+
+    <section id="slides" class="slides section">
+      <div class="section-heading">
+        <p class="eyebrow">SLIDES</p>
+        <h2>当日のスライド</h2>
+        <p>
+          当日使ったスライドをここから見返せます。
+          モンティ・ホール問題、2人の子供の性別問題、病気の検査、2つの箱の内容を確認できます。
+        </p>
+      </div>
+      <a class="slide-card" href="slides/bayes-statistics-open-campus.pdf">
+        <strong>スライドを見る</strong>
+        <span>PDFをブラウザで開きます。</span>
+      </a>
+    </section>
+
+    <section id="problems" class="problems section">
+      <div class="section-heading">
+        <p class="eyebrow">4 QUESTIONS</p>
+        <h2>4つの問題の振り返り</h2>
+        <p>当日の推理ゲームは、現実のデータサイエンスやAIの考え方につながっています。</p>
+      </div>
+      <div class="problem-list">
+        <article>
+          <span class="problem-number">01</span>
+          <h3>モンティ・ホール問題</h3>
+          <p><strong>振り返り：</strong>新しい情報が出ると、最適な選択が変わることを考えました。</p>
+          <p><strong>応用例：</strong>意思決定、A/Bテスト、探索戦略。</p>
+          <a href="monty/">モンティ・ホール問題のデモへ進む</a>
+        </article>
+        <article>
+          <span class="problem-number">02</span>
+          <h3>2人の子供の性別問題</h3>
+          <p><strong>振り返り：</strong>情報の聞き方・観測のされ方で確率が変わることを確認しました。</p>
+          <p><strong>応用例：</strong>アンケート設計、データの偏り、サンプリング。</p>
+        </article>
+        <article>
+          <span class="problem-number">03</span>
+          <h3>病気の検査</h3>
+          <p><strong>振り返り：</strong>判定結果は、元々の珍しさや誤判定率に左右されることを見ました。</p>
+          <p><strong>応用例：</strong>医療検査、AI判定、異常検知。</p>
+        </article>
+        <article class="featured-problem">
+          <span class="problem-number">04</span>
+          <h3>2つの箱</h3>
+          <p><strong>振り返り：</strong>球の色を見るたびに、Aの箱かBの箱かの確信度を更新しました。</p>
+          <p><strong>応用例：</strong>機械学習、逐次推定、センサー推定、品質管理。</p>
+          <p>発展デモ「ベイズ宝探し」は、この考え方をセンサーによる探索に置き換えたものです。</p>
+          <a href="dowsing/">ベイズ宝探しへ進む</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="learn" class="learn section">
+      <div class="section-heading">
+        <p class="eyebrow">WHAT YOU CAN LEARN</p>
+        <h2>この学科で学べること</h2>
+      </div>
+      <div class="learn-card">
+        <p>
+          高度応用情報科学科では、学びの特色として
+          「最先端のICT（情報通信技術）を幅広く学ぶことができる」こと、
+          「ICTを使う立場を重視した技術開発を実践する」こと、
+          「サービスやビジネスを生む『＋α』の提案力を養う」ことを大切にしています。
+        </p>
+        <p>
+          専門科目では「情報処理技術の基礎から応用まで幅広く学習」し、
+          データサイエンス、ネットワーク技術、セキュリティ、クラウド、IoTなどを段階的に学ぶ内容になっています。
+        </p>
+        <p>
+          当日のベイズ統計の体験は、その中でもデータサイエンスや情報処理技術の応用につながる入口です。
+        </p>
+        <p class="source-link">
+          出典：<a href="https://www.aicit.jp/?page_id=233" target="_blank" rel="noreferrer">高度応用情報科学科の教育</a>、
+          <a href="https://www.aicit.jp/?page_id=236" target="_blank" rel="noreferrer">専門科目カリキュラム</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="resources section">
+      <div class="section-heading">
+        <p class="eyebrow">RESOURCES</p>
+        <h2>もう一度見る・触る</h2>
+      </div>
+      <div class="resource-grid">
+        <a href="slides/bayes-statistics-open-campus.pdf">
+          <strong>スライドを見る</strong>
+          <span>ワークの4題を見返せます。</span>
+        </a>
+        <a href="dowsing/">
+          <strong>ベイズ宝探し</strong>
+          <span>観測を重ねて予想を更新する発展デモです。</span>
+        </a>
+        <a href="monty/">
+          <strong>モンティ・ホール問題デモ</strong>
+          <span>選び直すとどうなるかをこのページで試せます。</span>
+        </a>
+        <a href="clustering/">
+          <strong>学科クラスタリングデモ</strong>
+          <span>学科説明文から、学科同士の近さを可視化します。</span>
+        </a>
+        <a href="https://seeing-theory.brown.edu/" target="_blank" rel="noreferrer">
+          <strong>参考デモ：Seeing Theory</strong>
+          <span>確率・統計を視覚的に学べる外部サイトです。</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>千葉工業大学 高度応用情報科学科</strong>
+    <span>オープンキャンパス 学び体験</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

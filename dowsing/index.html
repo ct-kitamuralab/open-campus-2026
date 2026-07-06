@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="センサー反応から隠された宝箱の場所を推定し、ベイズ推論を体験できるブラウザゲーム">
+  <title>ベイズ宝探し：センサーで隠された宝箱を探せ！</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="トップへ">
+      <span class="brand-mark">B</span>
+      <span>ベイズ宝探し</span>
+    </a>
+    <nav aria-label="ページ内メニュー">
+      <a href="../">トップへ</a>
+      <a href="#tutorial">3分チュートリアル</a>
+      <a class="nav-button" href="#game">体験する</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">BAYESIAN TREASURE HUNT</p>
+        <h1>センサーで<br><em>隠された宝箱</em>を<br>探し出せ！</h1>
+        <p class="work-connection">
+          これは、今日の「2つの箱」の発展デモです。箱から球を何度も取り出してAかBかを推理したように、
+          このデモではセンサー反応を何度も集めて、宝箱の場所を推理します。
+        </p>
+        <p class="hero-lead">
+          地中に眠る宝箱を、ロッド型センサーで得られるセンサー反応から探すゲームです。
+          測定ノイズがある中で、前半は自分の勘、後半はベイズ推論が作る「お宝予想マップ」付き。その差を体感しよう。
+        </p>
+        <a class="primary-button" href="#game">宝探しに出発する <span>→</span></a>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="treasure-map">
+          <span class="map-route"></span>
+          <span class="map-mountain">▲</span>
+          <span class="map-palm">♣</span>
+          <span class="map-waves">≈ ≈ ≈</span>
+          <span class="treasure-x">×</span>
+          <span class="dowsing-rod">Y</span>
+          <span class="map-label">TREASURE?</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="concept-strip" aria-label="ベイズ推論の流れ">
+      <div><span>01</span><strong>予想する</strong><small>最初の考え</small></div>
+      <b>＋</b>
+      <div><span>02</span><strong>観測する</strong><small>新しい情報</small></div>
+      <b>→</b>
+      <div><span>03</span><strong>予想を更新</strong><small>より賢い考え</small></div>
+    </section>
+
+    <section id="tutorial" class="tutorial section">
+      <div class="section-heading">
+        <p class="eyebrow">3 MINUTE TUTORIAL</p>
+        <h2>ベイズ推論は、<br>「予想のアップデート」</h2>
+        <p>難しい計算に見えるけれど、私たちが普段している推理を数字で表したものです。</p>
+      </div>
+
+      <div class="story-card">
+        <div class="story-copy">
+          <p class="eyebrow">STORY &amp; RULES</p>
+          <h3>この宝箱は、弱い信号を出している</h3>
+          <p>
+            地中の宝箱には小さな発信機が入っています。あなたが持つ「ロッド型センサー」は、
+            その信号を測るためのロッド型センサーです。
+          </p>
+          <p>
+            宝箱に近いほどセンサー反応は<strong>強くなる傾向</strong>があります。ただし、地面の状態や機械の揺らぎによる
+            <strong>測定ノイズ</strong>が混ざるため、遠くで強く反応したり、近くで弱く反応したりすることもあります。
+          </p>
+        </div>
+        <div class="signal-model" aria-label="宝箱からの距離と信号の関係">
+          <div class="signal-scene">
+            <span class="story-treasure">宝箱<br>▣</span>
+            <i class="signal-wave wave-a"></i>
+            <i class="signal-wave wave-b"></i>
+            <i class="signal-wave wave-c"></i>
+            <span class="story-sensor">Y<br><small>センサー</small></span>
+          </div>
+          <div class="model-points">
+            <span><b>近い</b> → 平均的には強い反応</span>
+            <span><b>遠い</b> → 平均的には弱い反応</span>
+            <span><b>ノイズ</b> → 毎回少し値がぶれる</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lesson-grid">
+        <article class="lesson-card">
+          <span class="lesson-number">1</span>
+          <div class="lesson-icon prior-icon">?</div>
+          <h3>まず予想する</h3>
+          <p>最初は手がかりがないので、どのマスも同じくらい怪しいと考えます。これが<strong>事前確率</strong>です。</p>
+        </article>
+        <article class="lesson-card">
+          <span class="lesson-number">2</span>
+          <div class="lesson-icon sensor-icon">Y</div>
+          <h3>手がかりを得る</h3>
+          <p>地面にロッド型センサーをかざし、宝箱の信号を測ります。測定値にはノイズも含まれます。これが<strong>観測</strong>です。</p>
+        </article>
+        <article class="lesson-card">
+          <span class="lesson-number">3</span>
+          <div class="lesson-icon posterior-icon">◎</div>
+          <h3>予想を更新する</h3>
+          <p>「この反応なら、どこにある可能性が高い？」を計算し直します。これが<strong>事後確率</strong>です。</p>
+        </article>
+      </div>
+
+      <div class="formula-card">
+        <div>
+          <p class="eyebrow">BAYES' THEOREM</p>
+          <h3>新しい確率 ＝<br><span>手がかりとの相性 × これまでの確率</span></h3>
+        </div>
+        <div class="formula">
+          <span>P(仮説｜観測)</span>
+          <b>∝</b>
+          <span>P(観測｜仮説)</span>
+          <b>×</b>
+          <span>P(仮説)</span>
+        </div>
+        <p class="formula-note">∝ は「合計が100%になるように調整する」という意味だと思えばOK。</p>
+      </div>
+    </section>
+
+    <section id="game" class="game-section section">
+      <div class="section-heading game-heading">
+        <div>
+          <p class="eyebrow">TREASURE HUNT EXPERIMENT</p>
+          <h2>お宝予想マップ、本当に役立つ？</h2>
+        </div>
+        <p>2つのラウンドを遊んで、見つけるまでのクリック数を比べよう。</p>
+      </div>
+
+      <div class="game-shell">
+        <div class="mission-note">
+          <span>MISSION</span>
+          <p><strong>宝箱の発信機を探せ。</strong> ロッド型センサーの値は、近いほど強くなる傾向があります。ただし測定ノイズがあるため、1回の反応だけでは場所を断定できません。</p>
+        </div>
+        <div class="game-topbar">
+          <div id="roundProgress" class="round-progress" aria-label="進行状況"></div>
+          <label class="difficulty-label">
+            難易度
+            <select id="difficulty">
+              <option value="easy">入門（8×8・誤差小）</option>
+              <option value="normal" selected>標準（10×10）</option>
+              <option value="hard">挑戦（12×12・誤差大）</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="gamePlay" class="game-play">
+          <div class="board-panel">
+            <div class="board-caption">
+              <div>
+                <span id="roundBadge" class="status-badge plain">ヒントなし</span>
+                <h3 id="roundTitle">センサー反応だけで探そう</h3>
+              </div>
+              <button id="resetButton" class="text-button" type="button">↻ 最初から</button>
+            </div>
+            <p id="roundInstruction" class="instruction">怪しいマスをクリック。色は変わらないので、反応の強さを覚えて推理しよう。</p>
+            <div id="grid" class="search-grid" role="grid" aria-label="宝箱探索グリッド"></div>
+            <div class="legend" id="legend">
+              <span>未調査</span>
+              <span class="legend-box checked"></span><span>調査済み</span>
+            </div>
+          </div>
+
+          <aside class="game-sidebar">
+            <div class="counter-card">
+              <span>調べた回数</span>
+              <strong><b id="clickCount">0</b><small> 回</small></strong>
+            </div>
+
+            <div class="sensor-card">
+              <div class="sensor-heading">
+                <span>ロッド型センサーの反応</span>
+                <strong id="readingLabel">まだ観測していません</strong>
+              </div>
+              <div class="meter"><i id="meterFill"></i></div>
+              <div class="meter-scale"><span>弱い</span><span>強い</span></div>
+              <p id="readingText">マスを1つ選んでみよう。</p>
+            </div>
+
+            <div id="bayesTip" class="bayes-tip" hidden>
+              <span class="tip-icon">✦</span>
+              <div>
+                <strong>お宝予想マップ</strong>
+                <p id="tipText">色は0〜20%以上の固定目盛り。✦ は確率の高さにかかわらず、現在の1位を示します。</p>
+              </div>
+            </div>
+
+            <div class="mini-log">
+              <h4>観測メモ</h4>
+              <ol id="historyLog">
+                <li class="empty-log">まだ記録はありません</li>
+              </ol>
+            </div>
+          </aside>
+        </div>
+
+        <div id="roundComplete" class="modal-layer" hidden>
+          <div class="complete-card">
+            <div class="complete-icon">✓</div>
+            <p id="completeEyebrow" class="eyebrow">ROUND 1 COMPLETE</p>
+            <h3>宝箱を発見！</h3>
+            <p id="completeMessage"></p>
+            <button id="nextRoundButton" class="primary-button" type="button">ベイズありに挑戦 <span>→</span></button>
+          </div>
+        </div>
+
+        <div id="resultPanel" class="result-panel" hidden>
+          <p class="eyebrow">YOUR RESULT</p>
+          <h3 id="resultHeadline">比較結果</h3>
+          <div class="score-comparison">
+            <div class="score plain-score">
+              <span>ヒントなし</span>
+              <strong id="plainScore">--</strong><small>回</small>
+            </div>
+            <div class="versus">VS</div>
+            <div class="score bayes-score">
+              <span>ベイズあり</span>
+              <strong id="bayesScore">--</strong><small>回</small>
+            </div>
+          </div>
+          <div id="resultInsight" class="result-insight"></div>
+          <p class="fairness-note">※ 宝箱の位置は各ラウンドで変わります。1回の結果には運もあるので、何度か冒険すると傾向が見えてきます。</p>
+          <button id="playAgainButton" class="primary-button" type="button">もう一度冒険する <span>↻</span></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="discussion section">
+      <div class="section-heading">
+        <p class="eyebrow">THINK ABOUT IT</p>
+        <h2>遊んだあとに考えてみよう</h2>
+      </div>
+      <div class="question-grid">
+        <article><span>Q1</span>
+          <p>ロッドの反応が1回だけ強かったとき、その近くに宝箱があると断定してよいだろうか？</p>
+        </article>
+        <article><span>Q2</span>
+          <p>誤差がもっと大きくなったら、1回の観測と複数回の観測のどちらを信じる？</p>
+        </article>
+        <article><span>Q3</span>
+          <p>天気予報、病気の検査、迷惑メール判定では、何が「事前確率」と「観測」だろう？</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="connection section">
+      <div class="section-heading">
+        <p class="eyebrow">FROM THE BOX GAME</p>
+        <h2>「2つの箱」の発展として見る</h2>
+        <p>
+          当日の「2つの箱」では、青球・赤球を何度も観測しながら、箱Aか箱Bかの確信度を更新しました。
+          この宝探しも同じで、1回のセンサー反応だけで決めつけず、複数の観測を組み合わせて場所の確率を更新します。
+        </p>
+      </div>
+      <div class="connection-grid">
+        <article><strong>2つの箱</strong><span>球の色を観測する</span><span>箱A/Bの確率を更新する</span></article>
+        <article><strong>ベイズ宝探し</strong><span>センサー反応を観測する</span><span>各マスの確率を更新する</span></article>
+        <article><strong>現実の応用</strong><span>検査・センサー・ログを見る</span><span>データから判断を更新する</span></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>ベイズ宝探し</strong>
+    <p>センサー反応から宝箱を探すベイズ推論デモ</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

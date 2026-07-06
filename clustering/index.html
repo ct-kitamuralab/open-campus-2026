@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="千葉工業大学の公式教員紹介データから、研究内容や学科同士の近さを可視化するクラスタリングデモです。">
+  <title>研究クラスタリングデモ | 高度応用情報科学科 OC</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="../" aria-label="トップへ戻る">
+      <span class="brand-mark">OC</span>
+      <span>高度応用情報科学科 OC</span>
+    </a>
+    <nav aria-label="ページ内メニュー">
+      <a href="../">トップへ</a>
+      <a href="#controls">操作</a>
+      <a href="#visualize">可視化</a>
+      <a class="nav-button" href="#clusters">クラスタ概要</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">RESEARCH CLUSTERING DEMO</p>
+        <p class="event-name">Data Science Experience</p>
+        <h1>研究クラスタリング<span>デモ</span></h1>
+        <p class="experience-label">教員紹介文をデータとして読む<strong>言葉の近さから、研究と学科の関係を見てみよう</strong></p>
+        <p class="hero-lead">
+          公式ページから集めた教員ごとの研究紹介文をTF-IDFで数値化し、似ている対象を近くに置きます。
+          学科単位と教員単位を切り替えながら、高度応用情報科学科の近さも試せます。
+        </p>
+        <div class="hero-actions">
+          <a class="primary-button" href="#visualize">可視化を見る</a>
+          <a class="secondary-button" href="../">トップへ戻る</a>
+        </div>
+      </div>
+      <div class="hero-card" aria-label="クラスタリングの流れ">
+        <div><strong>1</strong><span>文章を数値化</span></div>
+        <i>+</i>
+        <div><strong>2</strong><span>近さを計算</span></div>
+        <i>=</i>
+        <div><strong>3</strong><span>グループ化</span></div>
+      </div>
+    </section>
+
+    <section id="controls" class="controls section">
+      <div class="section-heading">
+        <p class="eyebrow">CONTROLS</p>
+        <h2>操作</h2>
+        <p>分析対象、クラスタ数、手法を変えると、研究内容のまとまり方が変わります。</p>
+      </div>
+      <div class="control-grid">
+        <fieldset class="control-card mode-card">
+          <legend>分析対象</legend>
+          <label><input type="radio" name="analysisMode" value="department" checked> 学科単位</label>
+          <label><input type="radio" name="analysisMode" value="teacher"> 教員単位</label>
+        </fieldset>
+        <label class="control-card">
+          <span>クラスタ数</span>
+          <strong><b id="clusterCountLabel">5</b> グループ</strong>
+          <input id="clusterCount" type="range" min="2" max="10" value="5">
+        </label>
+        <fieldset class="control-card method-card">
+          <legend>クラスタリング手法</legend>
+          <label><input type="radio" name="method" value="kmeans" checked> KMeans</label>
+          <label><input type="radio" name="method" value="agglomerative"> 階層クラスタリング</label>
+        </fieldset>
+        <label class="control-card">
+          <span id="selectLabel">近さを見る学科</span>
+          <select id="departmentSelect"></select>
+        </label>
+      </div>
+    </section>
+
+    <section id="visualize" class="visualize section">
+      <div class="section-heading">
+        <p class="eyebrow">VISUALIZATION</p>
+        <h2>研究内容の距離感</h2>
+        <p>近くにある点ほど、研究紹介文とキーワードの特徴が似ています。</p>
+      </div>
+
+      <div class="metric-grid" aria-label="分析指標">
+        <article><span id="countMetricLabel">学科数</span><strong id="departmentCount">-</strong></article>
+        <article><span>クラスタ数</span><strong id="metricClusterCount">-</strong></article>
+        <article><span>手法</span><strong id="metricMethod">-</strong></article>
+        <article><span>データ品質</span><strong id="qualitySummary">-</strong></article>
+        <article><span>シルエット係数</span><strong id="silhouetteScore">-</strong></article>
+      </div>
+      <p class="metric-note">シルエット係数は、同じクラスタ内では近く、別クラスタとは離れているほど高くなる目安です。</p>
+
+      <div class="analysis-grid">
+        <article class="chart-card">
+          <div class="card-heading">
+            <div>
+              <p class="eyebrow">MAP</p>
+              <h3>2次元マップ</h3>
+            </div>
+            <span id="selectedBadge" class="status-badge">高度応用情報科学科</span>
+          </div>
+          <div id="scatterPlot" class="scatter-plot" role="img" aria-label="研究クラスタリング散布図"></div>
+          <p class="chart-note">点の色はクラスタ、白い縁取りの点は選択中の対象です。教員単位では選択中と近い教員を中心にラベル表示します。</p>
+        </article>
+
+        <aside class="side-panel">
+          <article class="info-card">
+            <p class="eyebrow">SIMILAR ITEMS</p>
+            <h3 id="similarTitle">近い対象</h3>
+            <div id="similarList" class="rank-list"></div>
+          </article>
+          <article class="info-card featured-info">
+            <p class="eyebrow">SELECTED</p>
+            <h3 id="selectedDepartmentName">選択対象</h3>
+            <p id="selectedFaculty" class="muted-text"></p>
+            <div id="selectedBadges" class="badge-row"></div>
+            <p id="selectedDescription"></p>
+            <div id="selectedKeywords" class="keyword-list"></div>
+            <a id="profileLink" class="profile-link" href="#" target="_blank" rel="noopener" hidden>公式ページを見る</a>
+          </article>
+          <article class="info-card">
+            <p class="eyebrow">SAME CLUSTER</p>
+            <h3>同じクラスタの対象</h3>
+            <div id="clusterMemberList" class="compact-list"></div>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section id="clusters" class="clusters section">
+      <div class="section-heading">
+        <p class="eyebrow">CLUSTER DETAILS</p>
+        <h2>クラスタごとの特徴</h2>
+        <p>各クラスタで重みが高い語を見ると、そのグループの研究領域が見えてきます。</p>
+      </div>
+      <div class="detail-grid">
+        <article class="detail-card">
+          <h3>クラスタごとの特徴語</h3>
+          <div id="termList" class="term-list"></div>
+        </article>
+        <article class="detail-card">
+          <h3>クラスタ概要</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>クラスタ</th><th>対象数</th><th>平均類似度</th><th>主な対象</th></tr>
+              </thead>
+              <tbody id="summaryBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="data-section section">
+      <div class="section-heading">
+        <p class="eyebrow">DATA</p>
+        <h2>分析データ</h2>
+      </div>
+      <div class="table-card table-wrap">
+        <table>
+          <thead id="dataHead"></thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </div>
+      <div class="info-note">
+        <strong>データについて</strong>
+        <span>公式学科ページと公式教員ページの研究紹介文を使っています。短文・キーワード中心の学科は品質バッジで注意表示します。</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>千葉工業大学 高度応用情報科学科</strong>
+    <span>研究クラスタリングデモ</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
