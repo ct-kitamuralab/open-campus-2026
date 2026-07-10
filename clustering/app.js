@@ -344,7 +344,7 @@
 
   function renderScatter() {
     const width = 900;
-    const height = state.mode === "department" ? 620 : 700;
+    const height = state.mode === "department" ? 540 : 600;
     const padding = 72;
     const xs = state.coords.map((coord) => coord[0]);
     const ys = state.coords.map((coord) => coord[1]);
@@ -418,7 +418,7 @@
     const selected = selectedIndex();
     const row = state.rows[selected];
     $("#similarTitle").textContent = `${state.rows[ref].label}に近い${state.mode === "department" ? "学科" : "教員・研究室"}`;
-    $("#similarList").innerHTML = nearestRows(ref, state.mode === "department" ? 8 : 10).map((item) => rankItem(item, item.similarity)).join("");
+    $("#similarList").innerHTML = nearestRows(ref, state.mode === "department" ? 5 : 6).map((item) => rankItem(item, item.similarity)).join("");
     $("#selectedDepartmentName").textContent = row.label;
     $("#selectedFaculty").textContent = metadataLine(row);
     $("#selectedDescription").textContent = row.description || "研究本文が短いため、主にキーワードや研究室名で計算しています。";
@@ -455,7 +455,7 @@
   }
 
   function departmentTeacherItems(row) {
-    return (row.teachers || []).slice(0, 12).map((teacher) => `
+    return (row.teachers || []).slice(0, 8).map((teacher) => `
       <a class="compact-item" href="${escapeHtml(teacher.profile_url || teacher.source_department_url || "#")}" target="_blank" rel="noopener">
         <strong>${escapeHtml(teacher.name || "教員")}</strong>
         <span>${escapeHtml(teacher.lab || teacher.position || "研究室")}</span>
@@ -537,11 +537,14 @@
   }
 
   function renderDataTable() {
+    const head = $("#dataHead");
+    const body = $("#dataBody");
+    if (!head || !body) return;
     const ref = referenceIndex();
     const scores = state.similarities[ref] || [];
     if (state.mode === "department") {
-      $("#dataHead").innerHTML = "<tr><th>学部</th><th>学科</th><th>教員数</th><th>類似度</th><th>品質</th><th>代表キーワード</th></tr>";
-      $("#dataBody").innerHTML = state.rows.map((row, index) => `
+      head.innerHTML = "<tr><th>学部</th><th>学科</th><th>教員数</th><th>類似度</th><th>品質</th><th>代表キーワード</th></tr>";
+      body.innerHTML = state.rows.map((row, index) => `
         <tr>
           <td>${escapeHtml(row.faculty)}</td>
           <td><strong>${escapeHtml(row.department)}</strong></td>
@@ -553,8 +556,8 @@
       return;
     }
 
-    $("#dataHead").innerHTML = "<tr><th>学科</th><th>教員</th><th>研究室</th><th>類似度</th><th>品質</th><th>キーワード</th></tr>";
-    $("#dataBody").innerHTML = state.rows.map((row, index) => `
+    head.innerHTML = "<tr><th>学科</th><th>教員</th><th>研究室</th><th>類似度</th><th>品質</th><th>キーワード</th></tr>";
+    body.innerHTML = state.rows.map((row, index) => `
       <tr>
         <td>${escapeHtml(row.department)}</td>
         <td><strong>${escapeHtml(row.name)}</strong><br><span class="muted-cell">${escapeHtml(row.position)}</span></td>

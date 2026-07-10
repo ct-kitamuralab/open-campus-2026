@@ -19,7 +19,8 @@
       <a href="../">トップへ</a>
       <a href="#controls">操作</a>
       <a href="#visualize">可視化</a>
-      <a class="nav-button" href="#compare">比較を見る</a>
+      <a href="#compare">比較</a>
+      <a class="nav-button" href="sources.html">情報源</a>
     </nav>
   </header>
 
@@ -84,50 +85,53 @@
         <p>近くにある点ほど、研究紹介文とキーワードの特徴が似ています。このマップは公式分類ではなく、文章データから見た関係性です。</p>
       </div>
 
-      <div class="metric-grid" aria-label="分析指標">
-        <article><span id="countMetricLabel">学科数</span><strong id="departmentCount">-</strong></article>
-        <article><span>基準対象</span><strong id="metricReference">-</strong></article>
-        <article><span>最も近い対象</span><strong id="metricNearest">-</strong></article>
-        <article><span>データ品質</span><strong id="qualitySummary">-</strong></article>
-        <article><span>解析方法</span><strong id="metricMethod">TF-IDF + PCA</strong></article>
-      </div>
-      <p class="metric-note">類似度は研究紹介文に出てくる語の近さです。学科選びでは、授業内容や入試情報とあわせて見てください。</p>
-
-      <div class="analysis-grid">
-        <article class="chart-card">
-          <div class="card-heading">
-            <div>
-              <p class="eyebrow">MAP</p>
-              <h3>2次元マップ</h3>
-            </div>
-            <span id="selectedBadge" class="status-badge">高度応用情報科学科</span>
+      <article class="map-card">
+        <div class="map-card-header">
+          <div>
+            <p class="eyebrow">MAP</p>
+            <h3>2次元マップと選択内容</h3>
+            <p class="metric-note">類似度は研究紹介文に出てくる語の近さです。学科選びでは、授業内容や入試情報とあわせて見てください。</p>
           </div>
-          <div id="scatterPlot" class="scatter-plot" role="img" aria-label="研究分野マップ散布図"></div>
-          <p class="chart-note">点の位置はPCAによる2次元化、白い縁取りの点は基準対象です。教員マップでは基準対象と近い教員を中心にラベル表示します。</p>
-        </article>
+          <span id="selectedBadge" class="status-badge">高度応用情報科学科</span>
+        </div>
 
-        <aside class="side-panel">
-          <article class="info-card">
-            <p class="eyebrow">SIMILAR ITEMS</p>
-            <h3 id="similarTitle">基準対象に近い対象</h3>
-            <div id="similarList" class="rank-list"></div>
-          </article>
-          <article class="info-card featured-info">
-            <p class="eyebrow">SELECTED</p>
-            <h3 id="selectedDepartmentName">選択対象</h3>
-            <p id="selectedFaculty" class="muted-text"></p>
-            <div id="selectedBadges" class="badge-row"></div>
-            <p id="selectedDescription"></p>
-            <div id="selectedKeywords" class="keyword-list"></div>
-            <a id="profileLink" class="profile-link" href="#" target="_blank" rel="noopener" hidden>公式ページを見る</a>
-          </article>
-          <article class="info-card">
-            <p class="eyebrow">RELATED ROUTE</p>
-            <h3 id="memberTitle">所属教員・近い学科</h3>
-            <div id="clusterMemberList" class="compact-list"></div>
-          </article>
-        </aside>
-      </div>
+        <div class="metric-grid" aria-label="分析指標">
+          <article><span id="countMetricLabel">学科数</span><strong id="departmentCount">-</strong></article>
+          <article><span>基準対象</span><strong id="metricReference">-</strong></article>
+          <article><span>最も近い対象</span><strong id="metricNearest">-</strong></article>
+          <article><span>データ品質</span><strong id="qualitySummary">-</strong></article>
+          <article><span>解析方法</span><strong id="metricMethod">TF-IDF + PCA</strong></article>
+        </div>
+
+        <div class="analysis-grid">
+          <div class="map-main">
+            <div id="scatterPlot" class="scatter-plot" role="img" aria-label="研究分野マップ散布図"></div>
+            <p class="chart-note">点の位置はPCAによる2次元化、白い縁取りの点は基準対象です。教員マップでは基準対象と近い教員を中心にラベル表示します。</p>
+          </div>
+
+          <aside class="side-panel">
+            <article class="info-card featured-info">
+              <p class="eyebrow">SELECTED</p>
+              <h3 id="selectedDepartmentName">選択対象</h3>
+              <p id="selectedFaculty" class="muted-text"></p>
+              <div id="selectedBadges" class="badge-row"></div>
+              <p id="selectedDescription"></p>
+              <div id="selectedKeywords" class="keyword-list"></div>
+              <a id="profileLink" class="profile-link" href="#" target="_blank" rel="noopener" hidden>公式ページを見る</a>
+            </article>
+            <article class="info-card">
+              <p class="eyebrow">SIMILAR ITEMS</p>
+              <h3 id="similarTitle">基準対象に近い対象</h3>
+              <div id="similarList" class="rank-list"></div>
+            </article>
+            <article class="info-card">
+              <p class="eyebrow">RELATED ROUTE</p>
+              <h3 id="memberTitle">所属教員・近い学科</h3>
+              <div id="clusterMemberList" class="compact-list"></div>
+            </article>
+          </aside>
+        </div>
+      </article>
     </section>
 
     <section id="compare" class="clusters section">
@@ -149,19 +153,13 @@
     </section>
 
     <section class="data-section section">
-      <div class="section-heading">
-        <p class="eyebrow">DATA</p>
-        <h2>分析データ</h2>
-      </div>
-      <div class="table-card table-wrap">
-        <table>
-          <thead id="dataHead"></thead>
-          <tbody id="dataBody"></tbody>
-        </table>
-      </div>
-      <div class="info-note">
-        <strong>データについて</strong>
-        <span>公式学科ページと公式教員ページの研究紹介文を使っています。短文・キーワード中心の学科は品質バッジで注意表示します。</span>
+      <div class="source-card">
+        <div>
+          <p class="eyebrow">DATA SOURCE</p>
+          <h2>情報源と分析データ</h2>
+          <p>公式学科ページと公式教員ページの研究紹介文を使っています。全件データ、品質バッジの見方、公式ページへのリンクは別ページにまとめました。</p>
+        </div>
+        <a class="primary-button" href="sources.html">情報源を見る</a>
       </div>
     </section>
   </main>

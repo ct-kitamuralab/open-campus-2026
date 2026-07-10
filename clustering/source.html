@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="研究分野マップで使用している公式教員紹介データと品質バッジの説明です。">
+    <title>情報源と分析データ | 研究分野マップ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="./" aria-label="研究分野マップへ戻る">
+            <span class="brand-mark">OC</span>
+            <span>高度応用情報科学科 OC</span>
+        </a>
+        <nav aria-label="ページメニュー">
+            <a href="./">マップへ</a>
+            <a href="../">トップへ</a>
+            <a class="nav-button" href="#data">データ表</a>
+        </nav>
+    </header>
+
+    <main id="top">
+        <section class="hero source-hero">
+            <div class="hero-copy">
+                <p class="eyebrow">DATA SOURCE</p>
+                <p class="event-name">Research Field Map</p>
+                <h1>情報源と<span>分析データ</span></h1>
+                <p class="hero-lead">
+                    研究分野マップで使用している公式学科ページ・公式教員ページ由来のデータをまとめています。
+                    マップ本体は探索に集中できるよう、このページに全件表と品質の説明を分けました。
+                </p>
+                <div class="hero-actions">
+                    <a class="primary-button" href="./">マップへ戻る</a>
+                    <a class="secondary-button" href="#data">データ表を見る</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section controls">
+            <div class="section-heading">
+                <p class="eyebrow">ABOUT</p>
+                <h2>データの見方</h2>
+                <p>公式ページの本文量には差があるため、研究紹介文として使える情報量を品質バッジで示しています。</p>
+            </div>
+            <div class="control-grid source-guide-grid">
+                <article class="control-card">
+                    <span>本文あり</span>
+                    <strong>説明文を利用</strong>
+                    <p>研究内容の本文があり、文章データとして比較しやすい項目です。</p>
+                </article>
+                <article class="control-card">
+                    <span>短文のみ</span>
+                    <strong>要約中心</strong>
+                    <p>短い紹介文やテーマ名を中心に計算しています。</p>
+                </article>
+                <article class="control-card">
+                    <span>キーワードのみ</span>
+                    <strong>語句中心</strong>
+                    <p>キーワードや研究室名など、短い語句から特徴を見ています。</p>
+                </article>
+                <article class="control-card">
+                    <span>データ少</span>
+                    <strong>参考扱い</strong>
+                    <p>使えるテキストが少ないため、近さの解釈には注意が必要です。</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="data" class="data-section section">
+            <div class="section-heading">
+                <p class="eyebrow">TABLE</p>
+                <h2>教員ページ由来の全件データ</h2>
+                <p id="sourceSummary">データを読み込んでいます。</p>
+            </div>
+            <div class="table-card table-wrap">
+                <table>
+                    <thead id="sourceDataHead"></thead>
+                    <tbody id="sourceDataBody"></tbody>
+                </table>
+            </div>
+            <div class="info-note">
+                <strong>注意</strong>
+                <span>この表は研究分野マップの計算に使う説明文・キーワードの確認用です。公式情報の最新状態は各公式ページで確認してください。</span>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <strong>千葉工業大学 高度応用情報科学科</strong>
+        <span>研究分野マップ 情報源</span>
+    </footer>
+
+    <script src="sources.js"></script>
+</body>
+
+</html>
