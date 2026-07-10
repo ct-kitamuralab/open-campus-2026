@@ -406,7 +406,8 @@
         <line class="axis-line" x1="${padding}" y1="${height / 2}" x2="${width - padding}" y2="${height / 2}"></line>
         <line class="axis-line" x1="${width / 2}" y1="${padding}" x2="${width / 2}" y2="${height - padding}"></line>
         ${points}
-      </svg>`;
+      </svg>
+      <p class="gesture-hint" aria-live="polite">2本指でスクロール・拡大縮小できます</p>`;
     bindMapPan();
     document.querySelectorAll("#scatterPlot [data-index]").forEach((node) => {
       node.addEventListener("keydown", (event) => {
@@ -446,6 +447,25 @@
     updateMapViewBox();
   }
 
+  function zoomMapAt(factor, clientX, clientY, plot) {
+    const view = state.mapView;
+    const rect = plot?.getBoundingClientRect();
+    if (!view || !rect?.width || !rect.height) return;
+    const nextWidth = clamp(view.width * factor, state.mapSize.width / 5, state.mapSize.width);
+    const nextHeight = clamp(view.height * factor, state.mapSize.height / 5, state.mapSize.height);
+    const ratioX = clamp((clientX - rect.left) / rect.width, 0, 1);
+    const ratioY = clamp((clientY - rect.top) / rect.height, 0, 1);
+    const focusX = view.x + view.width * ratioX;
+    const focusY = view.y + view.height * ratioY;
+    state.mapView = boundedView({
+      x: focusX - nextWidth * ratioX,
+      y: focusY - nextHeight * ratioY,
+      width: nextWidth,
+      height: nextHeight
+    });
+    updateMapViewBox();
+  }
+
   function panMap(deltaClientX, deltaClientY, plot) {
     const view = state.mapView;
     if (!view || !plot) return;
@@ -477,6 +497,8 @@
     const plot = $("#scatterPlot");
     if (!plot || plot.dataset.panBound === "true") return;
     plot.dataset.panBound = "true";
+    let pinchStart = null;
+    const updateGestureHint = () => plot.classList.toggle("show-gesture-hint", state.activePointers.size === 1);
     plot.addEventListener("pointerdown", (event) => {
       const target = event.target.closest?.("[data-index]");
       state.pendingPointIndex = target ? Number(target.dataset.index) : null;
@@ -486,11 +508,13 @@
       if (event.pointerType === "touch" && pointers.length >= 2) {
         state.pendingPointIndex = null;
         state.dragMoved = true;
+        pinchStart = mapPointerMetrics(pointers);
       }
       if (event.pointerType !== "touch" || pointers.length === 2) {
         plot.setPointerCapture?.(event.pointerId);
         state.dragStart = mapPointerCenter(pointers);
       }
+      updateGestureHint();
     });
     plot.addEventListener("pointermove", (event) => {
       if (!state.activePointers.has(event.pointerId)) return;
@@ -501,6 +525,11 @@
       event.preventDefault();
       const center = mapPointerCenter(pointers);
       if (!state.dragStart) state.dragStart = center;
+      if (event.pointerType === "touch" && pointers.length >= 2) {
+        const pinch = mapPointerMetrics(pointers);
+        if (pinchStart) zoomMapAt(pinchStart.distance / pinch.distance, pinchStart.center.x, pinchStart.center.y, plot);
+        pinchStart = pinch;
+      }
       const deltaX = center.x - state.dragStart.x;
       const deltaY = center.y - state.dragStart.y;
       if (Math.abs(deltaX) + Math.abs(deltaY) > 3) state.dragMoved = true;
@@ -512,16 +541,20 @@
       const canSelect = state.pendingPointIndex !== null && !state.dragMoved && (event.pointerType !== "touch" || wasSingleTouch);
       state.activePointers.delete(event.pointerId);
       state.dragStart = null;
+      pinchStart = state.activePointers.size >= 2 ? mapPointerMetrics(Array.from(state.activePointers.values())) : null;
       if (canSelect) selectRow(state.pendingPointIndex);
       state.pendingPointIndex = null;
       state.dragMoved = false;
+      updateGestureHint();
     });
     ["pointercancel", "pointerleave"].forEach((type) => {
       plot.addEventListener(type, (event) => {
         state.activePointers.delete(event.pointerId);
         state.dragStart = null;
+        pinchStart = null;
         state.pendingPointIndex = null;
         state.dragMoved = false;
+        updateGestureHint();
       });
     });
   }
@@ -529,6 +562,14 @@
   function mapPointerCenter(pointers) {
     const total = pointers.reduce((sum, pointer) => ({ x: sum.x + pointer.x, y: sum.y + pointer.y }), { x: 0, y: 0 });
     return { x: total.x / pointers.length, y: total.y / pointers.length };
+  }
+
+  function mapPointerMetrics(pointers) {
+    const [first, second] = pointers;
+    return {
+      center: mapPointerCenter([first, second]),
+      distance: Math.hypot(second.x - first.x, second.y - first.y) || 1
+    };
   }
 
   async function toggleMapFullscreen() {
