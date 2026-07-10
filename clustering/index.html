@@ -85,7 +85,7 @@
         <p>近くにある点ほど、研究紹介文とキーワードの特徴が似ています。このマップは公式分類ではなく、文章データから見た関係性です。</p>
       </div>
 
-      <article class="map-card">
+      <article id="mapCard" class="map-card">
         <div class="map-card-header">
           <div>
             <p class="eyebrow">MAP</p>
@@ -105,11 +105,17 @@
 
         <div class="analysis-grid">
           <div class="map-main">
+            <div class="map-toolbar" aria-label="マップ操作">
+              <button id="mapFullscreenButton" type="button">全画面</button>
+              <button id="mapZoomInButton" type="button" aria-label="マップを拡大">+</button>
+              <button id="mapZoomOutButton" type="button" aria-label="マップを縮小">-</button>
+              <button id="mapResetButton" type="button">リセット</button>
+            </div>
             <div id="scatterPlot" class="scatter-plot" role="img" aria-label="研究分野マップ散布図"></div>
-            <p class="chart-note">点の位置はPCAによる2次元化、白い縁取りの点は基準対象です。教員マップでは基準対象と近い教員を中心にラベル表示します。</p>
+            <p class="chart-note">点の位置はPCAによる2次元化、白い縁取りの点は基準対象です。拡大後はPCではドラッグ、モバイルでは2本指ドラッグで移動できます。</p>
           </div>
 
-          <aside class="side-panel">
+          <aside class="selected-panel">
             <article class="info-card featured-info">
               <p class="eyebrow">SELECTED</p>
               <h3 id="selectedDepartmentName">選択対象</h3>
@@ -119,17 +125,20 @@
               <div id="selectedKeywords" class="keyword-list"></div>
               <a id="profileLink" class="profile-link" href="#" target="_blank" rel="noopener" hidden>公式ページを見る</a>
             </article>
-            <article class="info-card">
-              <p class="eyebrow">SIMILAR ITEMS</p>
-              <h3 id="similarTitle">基準対象に近い対象</h3>
-              <div id="similarList" class="rank-list"></div>
-            </article>
-            <article class="info-card">
-              <p class="eyebrow">RELATED ROUTE</p>
-              <h3 id="memberTitle">所属教員・近い学科</h3>
-              <div id="clusterMemberList" class="compact-list"></div>
-            </article>
           </aside>
+        </div>
+
+        <div class="map-support-grid">
+          <article class="info-card">
+            <p class="eyebrow">SIMILAR ITEMS</p>
+            <h3 id="similarTitle">基準対象に近い対象</h3>
+            <div id="similarList" class="rank-list"></div>
+          </article>
+          <article class="info-card">
+            <p class="eyebrow">RELATED ROUTE</p>
+            <h3 id="memberTitle">所属教員・近い学科</h3>
+            <div id="clusterMemberList" class="compact-list"></div>
+          </article>
         </div>
       </article>
     </section>
