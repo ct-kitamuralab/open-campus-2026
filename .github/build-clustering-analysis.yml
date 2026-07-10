@@ -1,0 +1,38 @@
+name: Build clustering analysis
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-clustering-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build clustering analysis data
+        run: node tools/build-clustering-data.js
+
+      - name: Commit updated analysis data
+        run: |
+          if git diff --quiet -- data/clustering-analysis.json; then
+            echo "clustering-analysis.json is up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/clustering-analysis.json
+          git commit -m "Update clustering analysis data"
+          git push

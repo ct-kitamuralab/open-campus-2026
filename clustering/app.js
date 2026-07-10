@@ -3,6 +3,7 @@
 
   const TARGET_DEPARTMENT = "高度応用情報科学科";
   const COLORS = ["#ff6b35", "#15284c", "#20c4d9", "#dff23a", "#7d5fff", "#00a676", "#f0a202", "#d7263d", "#6f42c1", "#008c7a"];
+  const ANALYSIS_DATA_URL = "../data/clustering-analysis.json";
   const KUROMOJI_SCRIPT_URL = "../vendor/kuromoji.js";
   const KUROMOJI_DICT_PATH = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/";
   const MAX_TERMS = 1400;
@@ -16,6 +17,7 @@
 
   const state = {
     rawTeachers: [],
+    analysisData: null,
     mode: "department",
     colorMode: "similarity",
     rows: [],
@@ -25,7 +27,13 @@
     similarities: [],
     referenceId: "",
     selectedId: "",
-    tokenizer: null
+    tokenizer: null,
+    mapView: null,
+    mapSize: { width: 900, height: 540 },
+    activePointers: new Map(),
+    dragStart: null,
+    dragMoved: false,
+    pendingPointIndex: null
   };
 
   function buildTeacherRows(teachers) {
@@ -282,6 +290,19 @@
   }
 
   function rebuildRows() {
+    state.mapView = null;
+    const precomputed = state.analysisData?.[state.mode];
+    if (isValidAnalysis(precomputed)) {
+      state.rows = precomputed.rows;
+      state.terms = precomputed.terms;
+      state.matrix = precomputed.matrix;
+      state.coords = precomputed.coords;
+      state.similarities = precomputed.similarities;
+      populateSelect();
+      rerender();
+      return;
+    }
+
     state.rows = state.mode === "department" ? buildDepartmentRows(state.rawTeachers) : buildTeacherRows(state.rawTeachers);
     const { terms, matrix } = vectorize(state.rows);
     state.terms = terms;
@@ -345,6 +366,8 @@
   function renderScatter() {
     const width = 900;
     const height = state.mode === "department" ? 540 : 600;
+    state.mapSize = { width, height };
+    if (!state.mapView) resetMapView();
     const padding = 72;
     const xs = state.coords.map((coord) => coord[0]);
     const ys = state.coords.map((coord) => coord[1]);
@@ -379,17 +402,157 @@
     }).join("");
 
     $("#scatterPlot").innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" aria-hidden="true">
+      <svg viewBox="${viewBoxValue()}" aria-hidden="true">
         <line class="axis-line" x1="${padding}" y1="${height / 2}" x2="${width - padding}" y2="${height / 2}"></line>
         <line class="axis-line" x1="${width / 2}" y1="${padding}" x2="${width / 2}" y2="${height - padding}"></line>
         ${points}
       </svg>`;
+    bindMapPan();
     document.querySelectorAll("#scatterPlot [data-index]").forEach((node) => {
-      node.addEventListener("click", () => selectRow(Number(node.dataset.index)));
       node.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") selectRow(Number(node.dataset.index));
       });
     });
+  }
+
+  function resetMapView() {
+    state.mapView = { x: 0, y: 0, width: state.mapSize.width, height: state.mapSize.height };
+    updateMapViewBox();
+  }
+
+  function viewBoxValue() {
+    const view = state.mapView || { x: 0, y: 0, width: state.mapSize.width, height: state.mapSize.height };
+    return `${view.x} ${view.y} ${view.width} ${view.height}`;
+  }
+
+  function updateMapViewBox() {
+    const svg = $("#scatterPlot svg");
+    if (svg) svg.setAttribute("viewBox", viewBoxValue());
+  }
+
+  function zoomMap(factor) {
+    const view = state.mapView;
+    if (!view) return;
+    const nextWidth = clamp(view.width * factor, state.mapSize.width / 5, state.mapSize.width);
+    const nextHeight = clamp(view.height * factor, state.mapSize.height / 5, state.mapSize.height);
+    const centerX = view.x + view.width / 2;
+    const centerY = view.y + view.height / 2;
+    state.mapView = boundedView({
+      x: centerX - nextWidth / 2,
+      y: centerY - nextHeight / 2,
+      width: nextWidth,
+      height: nextHeight
+    });
+    updateMapViewBox();
+  }
+
+  function panMap(deltaClientX, deltaClientY, plot) {
+    const view = state.mapView;
+    if (!view || !plot) return;
+    const rect = plot.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    state.mapView = boundedView({
+      ...view,
+      x: view.x - deltaClientX * (view.width / rect.width),
+      y: view.y - deltaClientY * (view.height / rect.height)
+    });
+    updateMapViewBox();
+  }
+
+  function boundedView(view) {
+    const maxX = Math.max(0, state.mapSize.width - view.width);
+    const maxY = Math.max(0, state.mapSize.height - view.height);
+    return {
+      ...view,
+      x: clamp(view.x, 0, maxX),
+      y: clamp(view.y, 0, maxY)
+    };
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function bindMapPan() {
+    const plot = $("#scatterPlot");
+    if (!plot || plot.dataset.panBound === "true") return;
+    plot.dataset.panBound = "true";
+    plot.addEventListener("pointerdown", (event) => {
+      const target = event.target.closest?.("[data-index]");
+      state.pendingPointIndex = target ? Number(target.dataset.index) : null;
+      state.dragMoved = false;
+      state.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType });
+      const pointers = Array.from(state.activePointers.values());
+      if (event.pointerType === "touch" && pointers.length >= 2) {
+        state.pendingPointIndex = null;
+        state.dragMoved = true;
+      }
+      if (event.pointerType !== "touch" || pointers.length === 2) {
+        plot.setPointerCapture?.(event.pointerId);
+        state.dragStart = mapPointerCenter(pointers);
+      }
+    });
+    plot.addEventListener("pointermove", (event) => {
+      if (!state.activePointers.has(event.pointerId)) return;
+      state.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType });
+      const pointers = Array.from(state.activePointers.values());
+      const canDrag = event.pointerType !== "touch" || pointers.length >= 2;
+      if (!canDrag) return;
+      event.preventDefault();
+      const center = mapPointerCenter(pointers);
+      if (!state.dragStart) state.dragStart = center;
+      const deltaX = center.x - state.dragStart.x;
+      const deltaY = center.y - state.dragStart.y;
+      if (Math.abs(deltaX) + Math.abs(deltaY) > 3) state.dragMoved = true;
+      panMap(deltaX, deltaY, plot);
+      state.dragStart = center;
+    }, { passive: false });
+    plot.addEventListener("pointerup", (event) => {
+      const wasSingleTouch = event.pointerType === "touch" && state.activePointers.size === 1;
+      const canSelect = state.pendingPointIndex !== null && !state.dragMoved && (event.pointerType !== "touch" || wasSingleTouch);
+      state.activePointers.delete(event.pointerId);
+      state.dragStart = null;
+      if (canSelect) selectRow(state.pendingPointIndex);
+      state.pendingPointIndex = null;
+      state.dragMoved = false;
+    });
+    ["pointercancel", "pointerleave"].forEach((type) => {
+      plot.addEventListener(type, (event) => {
+        state.activePointers.delete(event.pointerId);
+        state.dragStart = null;
+        state.pendingPointIndex = null;
+        state.dragMoved = false;
+      });
+    });
+  }
+
+  function mapPointerCenter(pointers) {
+    const total = pointers.reduce((sum, pointer) => ({ x: sum.x + pointer.x, y: sum.y + pointer.y }), { x: 0, y: 0 });
+    return { x: total.x / pointers.length, y: total.y / pointers.length };
+  }
+
+  async function toggleMapFullscreen() {
+    const card = $("#mapCard");
+    if (!card) return;
+    if (document.fullscreenElement) {
+      await document.exitFullscreen?.();
+      return;
+    }
+    if (document.fullscreenEnabled && card.requestFullscreen) {
+      await card.requestFullscreen();
+      return;
+    }
+    card.classList.toggle("is-map-expanded");
+    document.body.classList.toggle("map-expanded", card.classList.contains("is-map-expanded"));
+    updateFullscreenButton();
+  }
+
+  function updateFullscreenButton() {
+    const button = $("#mapFullscreenButton");
+    const card = $("#mapCard");
+    if (!button || !card) return;
+    const expanded = Boolean(document.fullscreenElement) || card.classList.contains("is-map-expanded");
+    button.textContent = expanded ? "閉じる" : "全画面";
   }
 
   function similarityColor(score) {
@@ -623,6 +786,21 @@
   }
 
   function bindEvents() {
+    $("#mapFullscreenButton")?.addEventListener("click", () => {
+      toggleMapFullscreen().catch(console.error);
+    });
+    $("#mapZoomInButton")?.addEventListener("click", () => zoomMap(0.78));
+    $("#mapZoomOutButton")?.addEventListener("click", () => zoomMap(1.28));
+    $("#mapResetButton")?.addEventListener("click", resetMapView);
+    document.addEventListener("fullscreenchange", updateFullscreenButton);
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      const card = $("#mapCard");
+      if (!card?.classList.contains("is-map-expanded")) return;
+      card.classList.remove("is-map-expanded");
+      document.body.classList.remove("map-expanded");
+      updateFullscreenButton();
+    });
     document.querySelectorAll('input[name="analysisMode"]').forEach((radio) => {
       radio.addEventListener("change", (event) => {
         state.mode = event.target.value;
@@ -653,6 +831,13 @@
   }
 
   async function init() {
+    state.analysisData = await loadPrecomputedAnalysis();
+    if (state.analysisData) {
+      bindEvents();
+      rebuildRows();
+      return;
+    }
+
     const [response, tokenizer] = await Promise.all([
       fetch("../data/teachers.json"),
       loadKuromoji()
@@ -662,6 +847,28 @@
     state.tokenizer = tokenizer;
     bindEvents();
     rebuildRows();
+  }
+
+  async function loadPrecomputedAnalysis() {
+    try {
+      const response = await fetch(ANALYSIS_DATA_URL);
+      if (!response.ok) return null;
+      const analysis = await response.json();
+      return isValidAnalysis(analysis.department) && isValidAnalysis(analysis.teacher) ? analysis : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function isValidAnalysis(analysis) {
+    return Boolean(
+      analysis
+      && Array.isArray(analysis.rows)
+      && Array.isArray(analysis.terms)
+      && Array.isArray(analysis.matrix)
+      && Array.isArray(analysis.coords)
+      && Array.isArray(analysis.similarities)
+    );
   }
 
   async function loadKuromoji() {
