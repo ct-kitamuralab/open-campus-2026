@@ -498,7 +498,11 @@
     if (!plot || plot.dataset.panBound === "true") return;
     plot.dataset.panBound = "true";
     let pinchStart = null;
-    const updateGestureHint = () => plot.classList.toggle("show-gesture-hint", state.activePointers.size === 1);
+    const updateGestureHint = (touches) => plot.classList.toggle("show-gesture-hint", touches === 1);
+    plot.addEventListener("touchstart", (event) => updateGestureHint(event.touches.length), { passive: true });
+    plot.addEventListener("touchmove", (event) => updateGestureHint(event.touches.length), { passive: true });
+    plot.addEventListener("touchend", (event) => updateGestureHint(event.touches.length), { passive: true });
+    plot.addEventListener("touchcancel", () => updateGestureHint(0), { passive: true });
     plot.addEventListener("pointerdown", (event) => {
       const target = event.target.closest?.("[data-index]");
       state.pendingPointIndex = target ? Number(target.dataset.index) : null;
@@ -514,7 +518,6 @@
         plot.setPointerCapture?.(event.pointerId);
         state.dragStart = mapPointerCenter(pointers);
       }
-      updateGestureHint();
     });
     plot.addEventListener("pointermove", (event) => {
       if (!state.activePointers.has(event.pointerId)) return;
@@ -545,7 +548,6 @@
       if (canSelect) selectRow(state.pendingPointIndex);
       state.pendingPointIndex = null;
       state.dragMoved = false;
-      updateGestureHint();
     });
     ["pointercancel", "pointerleave"].forEach((type) => {
       plot.addEventListener(type, (event) => {
@@ -554,7 +556,6 @@
         pinchStart = null;
         state.pendingPointIndex = null;
         state.dragMoved = false;
-        updateGestureHint();
       });
     });
   }
