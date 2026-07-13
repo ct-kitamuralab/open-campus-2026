@@ -55,6 +55,7 @@ nav { display: flex; align-items: center; gap: 24px; font-size: 14px; font-weigh
 }
 .hero-copy { max-width: 790px; }
 .eyebrow { margin: 0 0 12px; color: var(--orange); font-size: 12px; font-weight: 900; letter-spacing: .18em; }
+.presented-by { margin: -7px 0 16px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
 .event-name { display: inline-flex; margin: 0 0 18px; padding: 5px 12px; color: white; background: var(--navy); border-radius: 999px; font-size: 13px; font-weight: 900; }
 h1 { margin: 0; font-size: clamp(38px, 5.5vw, 72px); line-height: 1.2; letter-spacing: -.05em; }
 h1 span { display: block; color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-weight: 500; }
@@ -190,6 +191,7 @@ h1 span { display: block; color: var(--orange); font-family: Georgia, "Yu Mincho
 
 footer { display: flex; align-items: center; justify-content: space-between; padding: 34px 7vw; color: #aeb9cc; background: #0e1d37; font-size: 13px; }
 footer strong { color: white; }
+footer small { margin-left: 12px; color: #7f8da5; font-size: 10px; }
 
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; min-height: auto; }
@@ -221,6 +223,7 @@ footer strong { color: white; }
   .reference-link { align-items: flex-start; padding: 22px; }
   .reference-link > span:last-child { display: none; }
   footer { display: grid; gap: 6px; text-align: center; }
+  footer small { display: block; margin: 4px 0 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
