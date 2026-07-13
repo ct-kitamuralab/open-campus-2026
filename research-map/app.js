@@ -2,7 +2,7 @@
   "use strict";
 
   const TARGET_DEPARTMENT = "高度応用情報科学科";
-  const COLORS = ["#ff6b35", "#15284c", "#20c4d9", "#dff23a", "#7d5fff", "#00a676", "#f0a202", "#d7263d", "#6f42c1", "#008c7a"];
+  const COLORS = ["#ff6b35", "#15284c", "#20c4d9", "#b6c900", "#7d5fff", "#00a676", "#f0a202", "#d7263d", "#6f42c1", "#008c7a", "#3f7cac", "#e457a1", "#8a5a44", "#6c8e23", "#00a5cf", "#a44a3f"];
   const ANALYSIS_DATA_URL = "../data/research-map-analysis.json";
   const KUROMOJI_SCRIPT_URL = "../vendor/kuromoji.js";
   const KUROMOJI_DICT_PATH = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/";
@@ -381,10 +381,10 @@
     const selected = selectedIndex();
     const labeled = labeledIndices(ref, selected);
     const scores = state.similarities[ref] || [];
-    const facultyColors = colorMap(state.rows.map((row) => state.mode === "department" ? row.faculty : row.department));
+    const departmentColors = departmentColorMap();
     $("#colorLegend").innerHTML = state.colorMode === "similarity"
       ? '<i class="legend-gradient"></i>暖色ほど文章類似度が高い'
-      : `<i class="legend-colors"></i>色で${state.mode === "department" ? "学部" : "所属学科"}を区別`;
+      : '<i class="legend-colors"></i>同じ学科は同じ色';
 
     const points = state.rows.map((row, index) => {
       const x = sx(state.coords[index][0]);
@@ -393,7 +393,7 @@
       const isSelected = index === selected;
       const color = state.colorMode === "similarity"
         ? similarityColor(scores[index] || 0)
-        : facultyColors.get(state.mode === "department" ? row.faculty : row.department);
+        : departmentColors.get(row.department);
       const radius = pointRadius(row, isReference, isSelected);
       const label = labeled.has(index) ? `<text class="point-label ${state.mode === "teacher" ? "teacher-label" : ""}" x="${x + 10}" y="${y - 10}">${escapeHtml(row.shortLabel)}</text>` : "";
       return `
@@ -609,6 +609,12 @@
   function colorMap(values) {
     const keys = unique(values.filter(Boolean));
     return new Map(keys.map((key, index) => [key, COLORS[index % COLORS.length]]));
+  }
+
+  function departmentColorMap() {
+    const departments = state.analysisData?.department?.rows?.map((row) => row.department)
+      || state.rawTeachers.map((teacher) => teacher.department);
+    return colorMap(departments);
   }
 
   function pointRadius(row, isReference, isSelected) {
