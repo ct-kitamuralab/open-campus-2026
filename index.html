@@ -6,20 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="千葉工業大学 高度応用情報科学科のオープンキャンパス特設ページ。学び体験のスライド、ベイズ統計ワークの振り返り、発展デモを掲載しています。">
   <title>高度応用情報科学科 オープンキャンパス特設ページ</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <header class="site-header">
     <a class="brand" href="#top" aria-label="トップへ">
-      <span class="brand-mark">OC</span>
+      <img class="brand-mark" src="favicon.svg" alt="">
       <span>高度応用情報科学科 OC</span>
     </a>
     <nav aria-label="ページ内メニュー">
-      <a href="#experience">当日の体験</a>
-      <a href="#demo">発展デモ</a>
+      <a href="#problems">4つの問題</a>
       <a href="#learn">学科の学び</a>
-      <a class="nav-button" href="#slides">スライド</a>
+      <a class="nav-button" href="#contents">コンテンツ一覧</a>
     </nav>
   </header>
 
@@ -27,15 +27,16 @@
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">千葉工業大学 高度応用情報科学科</p>
+        <p class="presented-by">喜多村研究室 presents</p>
         <p class="event-name">Open Campus Special</p>
         <h1>高度応用情報科学科<span>オープンキャンパス特設ページ</span></h1>
         <p class="experience-label">学び体験：<strong>~ データから箱の中身を推理しよう！ ベイズ統計学入門 ~ 編</strong></p>
         <p class="hero-lead">
-          当日のワークでは、少ない情報から予想し、新しい情報を見て考えを更新する「ベイズ統計」の考え方を体験していただきました。
-          このサイトでは、当日のスライド、4つの問題の振り返り、どこでも試せる発展デモをまとめています。
+          当日のスライドと、確率・データサイエンスを実際に触って学べる3つのデモをまとめています。
+          気になるコンテンツから始めてみてください。
         </p>
         <div class="hero-actions">
-          <a class="primary-button" href="dowsing/">発展デモで遊ぶ</a>
+          <a class="primary-button" href="#contents">コンテンツを選ぶ</a>
           <a class="secondary-button" href="slides/bayes-statistics-open-campus.pdf">当日のスライドを見る</a>
         </div>
       </div>
@@ -45,6 +46,61 @@
         <div><strong>2</strong><span>新しい情報</span></div>
         <i>=</i>
         <div><strong>3</strong><span>予想を更新</span></div>
+      </div>
+    </section>
+
+    <section id="contents" class="contents section">
+      <div class="section-heading contents-heading">
+        <div>
+          <p class="eyebrow">CONTENTS</p>
+          <h2>このサイトでできること</h2>
+        </div>
+        <p>読む、遊ぶ、試す、探す。4つの入口から、興味のあるものを選べます。</p>
+      </div>
+      <div class="content-grid">
+        <article class="content-card content-card-slides">
+          <div class="content-meta">
+            <span class="content-type">READ</span>
+            <span>目安 10分</span>
+          </div>
+          <span class="content-number">01</span>
+          <h3>当日のスライド</h3>
+          <p>ベイズ統計を題材にした、当日の4つの問題と考え方を見返せます。</p>
+          <a class="content-link" href="slides/bayes-statistics-open-campus.pdf">PDFでスライドを見る</a>
+        </article>
+        <article class="content-card content-card-dowsing">
+          <div class="content-meta">
+            <span class="content-type">PLAY</span>
+            <span>目安 3分</span>
+          </div>
+          <span class="content-number">02</span>
+          <h3>ベイズ宝探し</h3>
+          <p>センサーの反応を集めながら、宝箱がありそうな場所を推理するゲームです。</p>
+          <a class="content-link" href="dowsing/">宝探しで遊ぶ</a>
+        </article>
+        <article class="content-card content-card-monty">
+          <div class="content-meta">
+            <span class="content-type">EXPERIMENT</span>
+            <span>目安 2分</span>
+          </div>
+          <span class="content-number">03</span>
+          <h3>モンティ・ホール問題</h3>
+          <p>ドアを選び直すべきか、実際に何度も試して勝率の違いを確かめられます。</p>
+          <a class="content-link" href="monty/">確率実験を試す</a>
+        </article>
+        <article class="content-card content-card-clustering">
+          <div class="content-meta">
+            <span class="content-type">EXPLORE</span>
+            <span>目安 5分</span>
+          </div>
+          <span class="content-number">04</span>
+          <h3>研究分野マップ</h3>
+          <p>教員紹介文をもとに、学科や研究室の研究分野がどのように近いかを探索できます。</p>
+          <div class="content-actions">
+            <a class="content-link" href="clustering/">研究分野を探す</a>
+            <a class="content-sub-link" href="clustering/sources.html">データの情報源</a>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -68,37 +124,6 @@
           <p>その情報を見た後に、どちらが正しそうかを更新する。</p>
         </article>
       </div>
-    </section>
-
-    <section id="demo" class="demo-link section">
-      <div>
-        <p class="eyebrow">ADVANCED DEMO</p>
-        <h2>発展デモ：ベイズ宝探し</h2>
-        <p>
-          「2つの箱」では、球の色を何度も見て、Aの箱かBの箱かを推理しました。
-          ベイズ宝探しではセンサー反応から場所を推理し、研究分野マップでは文章データから学科や研究室同士の近さを可視化します。
-        </p>
-        <p>1分だけ触るだけでも、データを集めながら予想や見え方が変わる感覚を体験できます。</p>
-      </div>
-      <div class="hero-actions">
-        <a class="primary-button" href="dowsing/">ベイズ宝探しを試す</a>
-        <a class="secondary-button" href="clustering/">研究分野マップを見る</a>
-      </div>
-    </section>
-
-    <section id="slides" class="slides section">
-      <div class="section-heading">
-        <p class="eyebrow">SLIDES</p>
-        <h2>当日のスライド</h2>
-        <p>
-          当日使ったスライドをここから見返せます。
-          モンティ・ホール問題、2人の子供の性別問題、病気の検査、2つの箱の内容を確認できます。
-        </p>
-      </div>
-      <a class="slide-card" href="slides/bayes-statistics-open-campus.pdf">
-        <strong>スライドを見る</strong>
-        <span>PDFをブラウザで開きます。</span>
-      </a>
     </section>
 
     <section id="problems" class="problems section">
@@ -164,39 +189,21 @@
       </div>
     </section>
 
-    <section class="resources section">
+    <section class="reference section">
       <div class="section-heading">
-        <p class="eyebrow">RESOURCES</p>
-        <h2>もう一度見る・触る</h2>
+        <p class="eyebrow">FURTHER LEARNING</p>
+        <h2>もっと確率・統計を学ぶ</h2>
       </div>
-      <div class="resource-grid">
-        <a href="slides/bayes-statistics-open-campus.pdf">
-          <strong>スライドを見る</strong>
-          <span>ワークの4題を見返せます。</span>
-        </a>
-        <a href="dowsing/">
-          <strong>ベイズ宝探し</strong>
-          <span>観測を重ねて予想を更新する発展デモです。</span>
-        </a>
-        <a href="monty/">
-          <strong>モンティ・ホール問題デモ</strong>
-          <span>選び直すとどうなるかをこのページで試せます。</span>
-        </a>
-        <a href="clustering/">
-          <strong>研究分野マップ</strong>
-          <span>教員紹介文から、学科や研究室同士の近さを可視化します。</span>
-        </a>
-        <a href="https://seeing-theory.brown.edu/" target="_blank" rel="noreferrer">
-          <strong>参考デモ：Seeing Theory</strong>
-          <span>確率・統計を視覚的に学べる外部サイトです。</span>
-        </a>
-      </div>
+      <a class="reference-link" href="https://seeing-theory.brown.edu/" target="_blank" rel="noreferrer">
+        <span><strong>Seeing Theory</strong>確率・統計を視覚的に学べる外部サイトです。</span>
+        <span aria-hidden="true">外部サイトへ ↗</span>
+      </a>
     </section>
   </main>
 
   <footer>
     <strong>千葉工業大学 高度応用情報科学科</strong>
-    <span>オープンキャンパス 学び体験</span>
+    <span>オープンキャンパス 学び体験 <small>企画・制作：喜多村研究室</small></span>
   </footer>
 
   <script src="app.js"></script>
