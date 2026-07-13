@@ -24,6 +24,7 @@
     terms: [],
     matrix: [],
     coords: [],
+    pca: null,
     similarities: [],
     referenceId: "",
     selectedId: "",
@@ -256,15 +257,36 @@
     return matrix.map((row) => matrix.map((other) => Math.max(0, Math.min(1, dot(row, other)))));
   }
 
-  function projectPca2d(matrix) {
+  function projectPca2d(matrix, terms) {
     const centered = centerColumns(matrix);
     const first = powerIterationForCovariance(centered);
+    const firstScores = centered.map((row) => dot(row, first.vector));
     const deflated = centered.map((row) => {
       const score = dot(row, first.vector);
       return row.map((value, index) => value - score * first.vector[index]);
     });
     const second = powerIterationForCovariance(deflated);
-    return centered.map((row) => [dot(row, first.vector), dot(row, second.vector)]);
+    const secondScores = centered.map((row) => dot(row, second.vector));
+    const totalVariance = centered.reduce((sum, row) => sum + dot(row, row), 0) || 1;
+    const firstRatio = dot(firstScores, firstScores) / totalVariance;
+    const secondRatio = dot(secondScores, secondScores) / totalVariance;
+    return {
+      coords: firstScores.map((score, index) => [score, secondScores[index]]),
+      pca: {
+        explainedVarianceRatio: [firstRatio, secondRatio],
+        cumulativeExplainedVarianceRatio: firstRatio + secondRatio,
+        components: [first.vector, second.vector].map((vector) => ({
+          positiveLoadings: componentTerms(vector, terms, "positive", 15),
+          negativeLoadings: componentTerms(vector, terms, "negative", 15)
+        }))
+      }
+    };
+  }
+
+  function componentTerms(vector, terms, direction, limit) {
+    const items = vector.map((weight, index) => ({ term: terms[index], weight }));
+    items.sort((a, b) => direction === "positive" ? b.weight - a.weight : a.weight - b.weight);
+    return items.slice(0, limit);
   }
 
   function centerColumns(matrix) {
@@ -297,6 +319,7 @@
       state.terms = precomputed.terms;
       state.matrix = precomputed.matrix;
       state.coords = precomputed.coords;
+      state.pca = precomputed.pca;
       state.similarities = precomputed.similarities;
       populateSelect();
       rerender();
@@ -305,9 +328,11 @@
 
     state.rows = state.mode === "department" ? buildDepartmentRows(state.rawTeachers) : buildTeacherRows(state.rawTeachers);
     const { terms, matrix } = vectorize(state.rows);
+    const projection = projectPca2d(matrix, terms);
     state.terms = terms;
     state.matrix = matrix;
-    state.coords = projectPca2d(matrix);
+    state.coords = projection.coords;
+    state.pca = projection.pca;
     state.similarities = computeSimilarities(matrix);
     populateSelect();
     rerender();
@@ -319,6 +344,7 @@
     renderSidePanel();
     renderDetails();
     renderDataTable();
+    if ($("#aiExportDialog")?.open) refreshAiExport();
   }
 
   function populateSelect() {
@@ -788,6 +814,405 @@
       </div>`;
   }
 
+  function currentAiExportScope() {
+    return document.querySelector('input[name="aiExportScope"]:checked')?.value || "comparison";
+  }
+
+  function buildAiMarkdown(scope = currentAiExportScope()) {
+    if (scope === "university") return buildUniversityMarkdown();
+    if (scope === "teachers") return buildTeachersMarkdown();
+    return buildComparisonMarkdown();
+  }
+
+  function markdownIntroduction(title) {
+    const sourceHash = state.analysisData?.sourceHash ? state.analysisData.sourceHash.slice(0, 12) : "ブラウザー内で計算";
+    return `# ${title}
+
+## AIへの依頼
+
+以下は、千葉工業大学の公式研究紹介文に現れた言葉を機械的に分析したデータです。
+
+- 共通点と違いを、根拠となる語を示しながら分かりやすく説明してください。
+- 学科の優劣、学生との相性、進路適性、研究内容の一致率として解釈しないでください。
+- PCAの左右・上下に固定的な研究分野名を付けないでください。
+- このデータだけでは判断できない点を明示してください。
+- 公式ページで追加確認するとよい質問を提案してください。
+
+## データについて
+
+- 特徴語: TF-IDFにより、その紹介文で相対的に重みが高くなった語
+- 文章類似度: 特徴語の重みをコサイン類似度で比較し、0〜100の目安として表示
+- MAP: 多数の言葉の違いをPCAで2次元に縮めた近似図
+- データ版: ${sourceHash}
+- 作成日時: ${new Date().toLocaleString("ja-JP")}
+
+## 必ず考慮する注意点
+
+- 文章類似度は研究内容が何%一致したかを示す値ではありません。
+- 紹介文の長さ、詳しさ、書き方の違いに影響されます。
+- 特徴語は機械抽出であり、公式な研究分野名とは限りません。
+- PCAの位置は全体を探索するための近似で、左右・上下に固定された意味はありません。
+- 最新情報は各公式ページで確認してください。
+`;
+  }
+
+  function buildComparisonMarkdown() {
+    const ref = referenceIndex();
+    const selected = selectedIndex();
+    const analysis = currentAnalysisForExport();
+    const referenceRow = state.rows[ref];
+    const selectedRow = state.rows[selected];
+    const rawSimilarity = state.similarities[ref]?.[selected] || 0;
+    const similarity = Math.round(rawSimilarity * 100);
+    const selectedRank = ref === selected ? null : similarityRank(analysis, ref, selected);
+    const contributions = sharedTermContributions(analysis, ref, selected, 10);
+    const referenceCoord = analysis.coords[ref];
+    const selectedCoord = analysis.coords[selected];
+    const distance = pcaDistance(referenceCoord, selectedCoord);
+    const comparison = compareTerms(ref, selected, 10);
+    const rows = ref === selected ? [[referenceRow, ref]] : [[referenceRow, ref], [selectedRow, selected]];
+    const itemSections = rows.map(([row, index]) => markdownItem(row, topTermsForRow(index, 12), analysis.coords[index])).join("\n");
+    const relation = ref === selected
+      ? "比較の基準と選択対象は同じです。別の点を選ぶと、2対象の関係を比較できます。"
+      : `コサイン類似度（小数6桁）: ${rawSimilarity.toFixed(6)}
+- 文章類似度表示: ${similarity} / 100
+- 類似度順位: ${analysis.rows.length - 1}対象中 ${selectedRank}位
+- PCA上の距離: ${distance.toFixed(6)}
+- 類似度への寄与が大きい共通語: ${contributionLine(contributions)}`;
+
+    return `${markdownIntroduction(`研究分野マップ: ${referenceRow.label}と${selectedRow.label}の比較`)}
+${pcaMarkdown(analysis)}
+## 今回の比較
+
+- 表示モード: ${state.mode === "department" ? "学科MAP" : "教員・研究室MAP"}
+- 比較の基準: ${referenceRow.label}
+- いま見ている対象: ${selectedRow.label}
+- ${relation}
+
+MAP上のPCA距離と、元のTF-IDF空間で計算したコサイン類似度は別の指標です。両者が一致しない場合は、直接比較であるコサイン類似度と共通語の寄与を優先してください。
+
+## 対象の情報
+
+${itemSections}
+## 言葉の比較
+
+- 両方で重みを持つ語: ${termLine(comparison.common)}
+- ${referenceRow.label}側で相対的に重い語: ${termLine(comparison.reference)}
+- ${selectedRow.label}側で相対的に重い語: ${termLine(comparison.selected)}
+
+## AIへの質問例
+
+1. この2対象の共通点と違いを、特徴語を根拠に説明してください。
+2. 2対象をつなぐ学際的な研究テーマを3つ提案してください。
+3. オープンキャンパスで教員や学生に確認するとよい質問を提案してください。
+4. このデータからは判断できないことを整理してください。
+`;
+  }
+
+  function markdownItem(row, terms, coord) {
+    const metadata = [row.faculty, row.department, row.position, row.lab].filter(Boolean).join(" / ");
+    return `### ${markdownText(row.label)}
+
+- 所属: ${markdownText(metadata || "情報なし")}
+- データ品質: ${markdownText(qualityText(row) || "情報なし")}
+- 教員数: ${row.teacherCount || 1}
+- PCA座標: PC1=${formatCoordinate(coord?.[0])}, PC2=${formatCoordinate(coord?.[1])}
+- 重みが高い語: ${termLine(terms)}
+- 掲載キーワード: ${termLine((row.keywords || []).slice(0, 10))}
+- 紹介文の抜粋: ${markdownText(truncateText(row.description, 500) || "掲載なし")}
+- 公式ページ: ${row.profileUrl || "掲載なし"}
+
+`;
+  }
+
+  function buildUniversityMarkdown() {
+    const analysis = departmentAnalysisForExport();
+    const departments = analysis.rows.map((row, index) => {
+      const nearest = analysis.rows
+        .map((other, otherIndex) => ({ label: other.label, index: otherIndex, score: analysis.similarities[index]?.[otherIndex] || 0 }))
+        .filter((item) => item.index !== index)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .map((item) => {
+          const common = sharedTermsFromAnalysis(analysis, index, item.index, 4);
+          return `${item.label}（文章類似度 ${Math.round(item.score * 100)}、共通語: ${common.join("・") || "該当なし"}）`;
+        });
+      const terms = topTermsFromAnalysis(analysis, index, 10);
+      return `### D${String(index + 1).padStart(2, "0")}. ${markdownText(row.label)}
+
+- 学部: ${markdownText(row.faculty || "情報なし")}
+- 教員数: ${row.teacherCount || 0}
+- データ品質: ${markdownText(qualityText(row) || "情報なし")}
+- PCA座標: PC1=${formatCoordinate(analysis.coords[index]?.[0])}, PC2=${formatCoordinate(analysis.coords[index]?.[1])}
+- 重みが高い語: ${termLine(terms)}
+- 掲載キーワード: ${termLine((row.keywords || []).slice(0, 8))}
+- 文章が似ている学科: ${termLine(nearest)}
+- 公式ページ: ${row.profileUrl || "掲載なし"}
+`;
+    }).join("\n");
+
+    return `${markdownIntroduction("研究分野マップ: 千葉工業大学16学科の俯瞰データ")}
+${pcaMarkdown(analysis)}
+## 大学全体の見方
+
+以下は16学科を同じ文章分析で比較した概要です。学科の公式な分類や教育課程の近さではなく、研究紹介文に現れた言葉の関係を示しています。
+
+## 学科別データ
+
+${departments}
+## 16学科のコサイン類似度行列
+
+行列の値はコサイン類似度を小数6桁で示します。D01〜D16は学科別データの見出しに対応します。
+
+${similarityMatrixMarkdown(analysis, "D")}
+
+## AIへの質問例
+
+1. 複数学科にまたがる研究テーマを、根拠となる特徴語とともに整理してください。
+2. 異なる学部をつなぐ役割を持ちそうな学科を、文章類似度だけで断定せずに説明してください。
+3. 情報・材料・生命・都市・デザインなどの観点から、研究領域の広がりを説明してください。
+4. 興味のあるテーマを深掘りするため、公式ページで確認すべき質問を提案してください。
+5. このデータだけでは判断できないことを整理してください。
+`;
+  }
+
+  function buildTeachersMarkdown() {
+    const analysis = teacherAnalysisForExport();
+    const teachers = analysis.rows.map((row, index) => {
+      const nearest = nearestFromAnalysis(analysis, index, 5).map((item) => {
+        const common = sharedTermsFromAnalysis(analysis, index, item.index, 4);
+        return `T${String(item.index + 1).padStart(3, "0")} ${item.label}=${item.score.toFixed(6)}（共通語: ${common.join("・") || "該当なし"}）`;
+      });
+      const terms = topTermsFromAnalysis(analysis, index, 8);
+      const coord = analysis.coords[index];
+      return `- T${String(index + 1).padStart(3, "0")} ${markdownText(row.label)} | 所属: ${markdownText(row.department || "情報なし")} | 研究室: ${markdownText(row.lab || "情報なし")} | 品質: ${markdownText(qualityText(row) || "情報なし")} | PC1=${formatCoordinate(coord?.[0])}, PC2=${formatCoordinate(coord?.[1])} | 特徴語: ${termLine(terms)} | 類似上位: ${termLine(nearest)} | 公式: ${row.profileUrl || "掲載なし"}`;
+    }).join("\n");
+
+    return `${markdownIntroduction("研究分野マップ: 185教員・研究室の俯瞰データ")}
+${pcaMarkdown(analysis)}
+## 教員・研究室全体の見方
+
+全${analysis.rows.length}人のPCA座標と、各教員についてコサイン類似度が高い上位5人を掲載しています。全類似度行列は${analysis.rows.length * analysis.rows.length}要素になるため省略しています。教員PCAは2軸の累積寄与率が低いため、MAP上の距離よりコサイン類似度と共通語を優先してください。
+
+## 教員・研究室別データ
+
+${teachers}
+
+## AIへの質問例
+
+1. 学科を越えてつながる教員・研究室を、コサイン類似度と共通語を根拠に整理してください。
+2. PCAの寄与率を考慮し、MAPだけでは判断できない関係を説明してください。
+3. 複数の教員・研究室をつなぐ学際的な研究テーマを提案してください。
+4. 興味のあるテーマについて、オープンキャンパスで質問するとよい教員・研究室を候補として示してください。
+5. データ品質が低く、追加確認が必要な対象を明示してください。
+`;
+  }
+
+  function currentAnalysisForExport() {
+    return {
+      rows: state.rows,
+      terms: state.terms,
+      matrix: state.matrix,
+      coords: state.coords,
+      pca: state.pca,
+      similarities: state.similarities
+    };
+  }
+
+  function departmentAnalysisForExport() {
+    if (isValidAnalysis(state.analysisData?.department)) return state.analysisData.department;
+    return analyzeRowsForExport(buildDepartmentRows(state.rawTeachers));
+  }
+
+  function teacherAnalysisForExport() {
+    if (isValidAnalysis(state.analysisData?.teacher)) return state.analysisData.teacher;
+    return analyzeRowsForExport(buildTeacherRows(state.rawTeachers));
+  }
+
+  function analyzeRowsForExport(rows) {
+    const { terms, matrix } = vectorize(rows);
+    const projection = projectPca2d(matrix, terms);
+    return {
+      rows,
+      terms,
+      matrix,
+      coords: projection.coords,
+      pca: projection.pca,
+      similarities: computeSimilarities(matrix)
+    };
+  }
+
+  function pcaMarkdown(analysis) {
+    const ratios = analysis.pca.explainedVarianceRatio;
+    const cumulative = analysis.pca.cumulativeExplainedVarianceRatio;
+    const components = analysis.pca.components.map((component, index) => `### PC${index + 1}
+
+- 寄与率: ${(ratios[index] * 100).toFixed(2)}%
+- 正方向で重みが大きい語: ${loadingLine(component.positiveLoadings)}
+- 負方向で重みが大きい語: ${loadingLine(component.negativeLoadings)}
+`).join("\n");
+    return `## PCA分析情報
+
+- 対象数: ${analysis.rows.length}
+- PC1寄与率: ${(ratios[0] * 100).toFixed(2)}%
+- PC2寄与率: ${(ratios[1] * 100).toFixed(2)}%
+- 2軸累積寄与率: ${(cumulative * 100).toFixed(2)}%
+- 解釈上の注意: 主成分の符号は反転可能です。正負を固定的な優劣として解釈しないでください。
+
+${components}`;
+  }
+
+  function loadingLine(items) {
+    return items.map((item) => `${markdownText(item.term)} (${item.weight >= 0 ? "+" : ""}${item.weight.toFixed(6)})`).join(" / ");
+  }
+
+  function similarityMatrixMarkdown(analysis, prefix) {
+    const ids = analysis.rows.map((_, index) => `${prefix}${String(index + 1).padStart(2, "0")}`);
+    const header = `| | ${ids.join(" | ")} |`;
+    const divider = `|---|${ids.map(() => "---:").join("|")}|`;
+    const rows = analysis.similarities.map((values, index) => `| ${ids[index]} | ${values.map((value) => Number(value).toFixed(6)).join(" | ")} |`);
+    return [header, divider, ...rows].join("\n");
+  }
+
+  function nearestFromAnalysis(analysis, rowIndex, limit) {
+    return analysis.rows
+      .map((row, index) => ({ label: row.label, index, score: analysis.similarities[rowIndex]?.[index] || 0 }))
+      .filter((item) => item.index !== rowIndex)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+  }
+
+  function similarityRank(analysis, reference, selected) {
+    return nearestFromAnalysis(analysis, reference, analysis.rows.length - 1)
+      .findIndex((item) => item.index === selected) + 1;
+  }
+
+  function sharedTermContributions(analysis, firstIndex, secondIndex, limit) {
+    return analysis.terms
+      .map((term, index) => ({ term, contribution: analysis.matrix[firstIndex][index] * analysis.matrix[secondIndex][index] }))
+      .filter((item) => item.contribution > 0)
+      .sort((a, b) => b.contribution - a.contribution)
+      .slice(0, limit);
+  }
+
+  function contributionLine(items) {
+    return items.length
+      ? items.map((item) => `${markdownText(item.term)} (${item.contribution.toFixed(6)})`).join(" / ")
+      : "該当なし";
+  }
+
+  function pcaDistance(first, second) {
+    if (!first || !second) return 0;
+    return Math.hypot(first[0] - second[0], first[1] - second[1]);
+  }
+
+  function formatCoordinate(value) {
+    return Number(value || 0).toFixed(6);
+  }
+
+  function topTermsFromAnalysis(analysis, rowIndex, limit) {
+    return analysis.matrix[rowIndex]
+      .map((value, index) => ({ term: analysis.terms[index], value }))
+      .filter((item) => item.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, limit)
+      .map((item) => item.term);
+  }
+
+  function sharedTermsFromAnalysis(analysis, firstIndex, secondIndex, limit) {
+    return analysis.terms
+      .map((term, index) => ({ term, contribution: analysis.matrix[firstIndex][index] * analysis.matrix[secondIndex][index] }))
+      .filter((item) => item.contribution > 0)
+      .sort((a, b) => b.contribution - a.contribution)
+      .slice(0, limit)
+      .map((item) => item.term);
+  }
+
+  function termLine(terms) {
+    return terms.length ? terms.map(markdownText).join(" / ") : "該当なし";
+  }
+
+  function markdownText(value) {
+    return cleanText(value).replace(/([\\`*_{}[\]()#+.!|>-])/g, "\\$1");
+  }
+
+  function truncateText(value, limit) {
+    const text = cleanText(value);
+    return text.length > limit ? `${text.slice(0, limit)}…` : text;
+  }
+
+  function refreshAiExport() {
+    const scope = currentAiExportScope();
+    const markdown = buildAiMarkdown(scope);
+    const summaries = {
+      university: "千葉工業大学16学科のPCA・類似度データ",
+      teachers: "185教員・研究室のPCA・類似度データ",
+      comparison: `${state.rows[referenceIndex()].label} × ${state.rows[selectedIndex()].label}`
+    };
+    $("#aiExportSummary").textContent = summaries[scope];
+    $("#aiExportSize").textContent = `約${markdown.length.toLocaleString("ja-JP")}文字`;
+    $("#aiExportPreview").textContent = markdown;
+    setAiExportStatus("");
+  }
+
+  function setAiExportStatus(message, isError = false) {
+    const status = $("#aiExportStatus");
+    status.textContent = message;
+    status.classList.toggle("is-error", isError);
+  }
+
+  async function copyAiExport() {
+    const markdown = buildAiMarkdown();
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(markdown);
+      } else {
+        fallbackCopy(markdown);
+      }
+      setAiExportStatus("AI用資料をコピーしました。普段使っているAIの入力欄へ貼り付けてください。");
+    } catch (_) {
+      try {
+        fallbackCopy(markdown);
+        setAiExportStatus("AI用資料をコピーしました。普段使っているAIの入力欄へ貼り付けてください。");
+      } catch (_) {
+        setAiExportStatus("コピーできませんでした。内容を確認から選択するか、Markdownを保存してください。", true);
+      }
+    }
+  }
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+
+  function downloadAiExport() {
+    const scope = currentAiExportScope();
+    const markdown = buildAiMarkdown(scope);
+    const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    const filenames = {
+      university: "cit-research-map-departments.md",
+      teachers: "cit-research-map-teachers.md",
+      comparison: "cit-research-map-comparison.md"
+    };
+    anchor.download = filenames[scope];
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    setAiExportStatus("Markdownファイルを保存しました。対応しているAIへ添付できます。");
+  }
+
   function renderDataTable() {
     const head = $("#dataHead");
     const body = $("#dataBody");
@@ -875,6 +1300,16 @@
   }
 
   function bindEvents() {
+    $("#openAiExportButton")?.addEventListener("click", () => {
+      refreshAiExport();
+      $("#aiExportDialog").showModal();
+    });
+    $("#closeAiExportButton")?.addEventListener("click", () => $("#aiExportDialog").close());
+    document.querySelectorAll('input[name="aiExportScope"]').forEach((radio) => {
+      radio.addEventListener("change", refreshAiExport);
+    });
+    $("#copyAiExportButton")?.addEventListener("click", () => copyAiExport());
+    $("#downloadAiExportButton")?.addEventListener("click", downloadAiExport);
     $("#mapFullscreenButton")?.addEventListener("click", () => {
       toggleMapFullscreen().catch(console.error);
     });
@@ -956,6 +1391,8 @@
       && Array.isArray(analysis.terms)
       && Array.isArray(analysis.matrix)
       && Array.isArray(analysis.coords)
+      && Array.isArray(analysis.pca?.explainedVarianceRatio)
+      && Array.isArray(analysis.pca?.components)
       && Array.isArray(analysis.similarities)
     );
   }

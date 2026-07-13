@@ -57,9 +57,15 @@
         <p>最初は「高度応用情報科学科」が選ばれています。慣れたら、ほかの学科や教員・研究室でも試してみてください。</p>
       </div>
       <div class="experience-steps" aria-label="体験の進め方">
-        <article><span>STEP 1</span><strong>基準を選ぶ</strong><p>どの学科から関係を探すか決めます。</p></article>
-        <article><span>STEP 2</span><strong>点を押す</strong><p>MAPで気になる学科を選びます。</p></article>
-        <article><span>STEP 3</span><strong>理由を見る</strong><p>共通する言葉から関係を読み解きます。</p></article>
+        <article><span>STEP 1</span><strong>基準を選ぶ</strong>
+          <p>どの学科から関係を探すか決めます。</p>
+        </article>
+        <article><span>STEP 2</span><strong>点を押す</strong>
+          <p>MAPで気になる学科を選びます。</p>
+        </article>
+        <article><span>STEP 3</span><strong>理由を見る</strong>
+          <p>共通する言葉から関係を読み解きます。</p>
+        </article>
       </div>
       <div class="control-grid">
         <fieldset class="control-card mode-card">
@@ -183,6 +189,15 @@
           <div id="comparisonList" class="comparison-list"></div>
         </article>
       </div>
+      <article class="ai-takeaway-card">
+        <div>
+          <p class="eyebrow">CONTINUE WITH YOUR AI</p>
+          <h3>AIで続きを考える</h3>
+          <p>いま見ている比較、または千葉工業大学16学科の概要を、あなたが普段使っているAIに添付できる資料へ変換します。</p>
+          <p class="ai-privacy-note">外部AIへ自動送信することはありません。資料はコピーするか、Markdownファイルとして保存できます。</p>
+        </div>
+        <button id="openAiExportButton" class="primary-button" type="button">AI用資料をつくる</button>
+      </article>
     </section>
 
     <section class="method-section section">
@@ -192,9 +207,27 @@
         <p>難しい式を知らなくても大丈夫です。コンピューターは、次の3段階で研究紹介文を比べています。</p>
       </div>
       <div class="method-grid">
-        <article class="method-item"><span>1</span><div><p class="method-name">特徴的な言葉を見つける</p><h3>TF-IDF</h3><p>その文章によく出て、ほかの文章では珍しい言葉を強く評価します。</p></div></article>
-        <article class="method-item"><span>2</span><div><p class="method-name">文章を直接比べる</p><h3>コサイン類似度</h3><p>言葉の重みの組み合わせを比べます。ランキングと数値にはこちらを使います。</p></div></article>
-        <article class="method-item"><span>3</span><div><p class="method-name">全体を地図にする</p><h3>PCA（主成分分析）</h3><p>たくさんの言葉の違いを2次元に縮めます。MAPは全体像を見るための近似です。</p></div></article>
+        <article class="method-item"><span>1</span>
+          <div>
+            <p class="method-name">特徴的な言葉を見つける</p>
+            <h3>TF-IDF</h3>
+            <p>その文章によく出て、ほかの文章では珍しい言葉を強く評価します。</p>
+          </div>
+        </article>
+        <article class="method-item"><span>2</span>
+          <div>
+            <p class="method-name">文章を直接比べる</p>
+            <h3>コサイン類似度</h3>
+            <p>言葉の重みの組み合わせを比べます。ランキングと数値にはこちらを使います。</p>
+          </div>
+        </article>
+        <article class="method-item"><span>3</span>
+          <div>
+            <p class="method-name">全体を地図にする</p>
+            <h3>PCA（主成分分析）</h3>
+            <p>たくさんの言葉の違いを2次元に縮めます。MAPは全体像を見るための近似です。</p>
+          </div>
+        </article>
       </div>
       <div class="method-summary">
         <strong>MAPと文章類似度は役割が違います</strong>
@@ -213,6 +246,60 @@
       </div>
     </section>
   </main>
+
+  <dialog id="aiExportDialog" class="ai-export-dialog" aria-labelledby="aiExportTitle">
+    <div class="ai-dialog-header">
+      <div>
+        <p class="eyebrow">TAKE IT WITH YOU</p>
+        <h2 id="aiExportTitle">AI用資料をつくる</h2>
+      </div>
+      <button id="closeAiExportButton" class="dialog-close" type="button" aria-label="閉じる">×</button>
+    </div>
+
+    <fieldset class="ai-export-scope">
+      <legend>どこまでAIに渡しますか？</legend>
+      <label>
+        <input type="radio" name="aiExportScope" value="comparison" checked>
+        <span><strong>いまの比較</strong><small>選択中の2対象、文章類似度、共通語をまとめます</small></span>
+      </label>
+      <label>
+        <input type="radio" name="aiExportScope" value="university">
+        <span><strong>16学科全体</strong><small>学科PCAと、16×16のコサイン類似度行列をまとめます</small></span>
+      </label>
+      <label>
+        <input type="radio" name="aiExportScope" value="teachers">
+        <span><strong>185教員・研究室全体</strong><small>教員PCAと、各教員の類似度上位5件をまとめます</small></span>
+      </label>
+    </fieldset>
+
+    <div class="ai-export-summary">
+      <span>作成する資料</span>
+      <strong id="aiExportSummary">いまの比較</strong>
+      <small id="aiExportSize">計算中</small>
+    </div>
+
+    <div class="ai-export-guide">
+      <strong>使い方</strong>
+      <ol>
+        <li>コピーした文章をAIの入力欄へ貼り付ける</li>
+        <li>または、保存したMarkdownファイルをAIへ添付する</li>
+        <li>資料末尾の質問例を使って対話を続ける</li>
+      </ol>
+    </div>
+
+    <details class="ai-export-preview">
+      <summary>AIへ渡す内容を確認</summary>
+      <pre id="aiExportPreview"></pre>
+    </details>
+
+    <p class="ai-external-note">生成AIの回答には誤りが含まれる場合があります。学科の最新情報は、資料に含まれる公式ページで確認してください。</p>
+    <p id="aiExportStatus" class="ai-export-status" role="status" aria-live="polite"></p>
+
+    <div class="ai-export-actions">
+      <button id="copyAiExportButton" class="primary-button" type="button">AI用資料をコピー</button>
+      <button id="downloadAiExportButton" class="secondary-button" type="button">Markdownを保存</button>
+    </div>
+  </dialog>
 
   <footer>
     <strong>千葉工業大学 高度応用情報科学科</strong>

@@ -37,11 +37,20 @@ async function main() {
 
 function buildAnalysis(rows) {
     const { terms, matrix } = vectorize(rows);
+    const projection = projectPca2d(matrix, terms);
     return {
         rows,
         terms,
         matrix: matrix.map((row) => row.map(roundNumber)),
-        coords: projectPca2d(matrix).map(([x, y]) => [roundNumber(x), roundNumber(y)]),
+        coords: projection.coords.map(([x, y]) => [roundNumber(x), roundNumber(y)]),
+        pca: {
+            explainedVarianceRatio: projection.pca.explainedVarianceRatio.map(roundNumber),
+            cumulativeExplainedVarianceRatio: roundNumber(projection.pca.cumulativeExplainedVarianceRatio),
+            components: projection.pca.components.map((component) => ({
+                positiveLoadings: component.positiveLoadings.map((item) => ({ term: item.term, weight: roundNumber(item.weight) })),
+                negativeLoadings: component.negativeLoadings.map((item) => ({ term: item.term, weight: roundNumber(item.weight) }))
+            }))
+        },
         similarities: computeSimilarities(matrix).map((row) => row.map(roundNumber))
     };
 }
@@ -272,15 +281,36 @@ function computeSimilarities(matrix) {
     return matrix.map((row) => matrix.map((other) => Math.max(0, Math.min(1, dot(row, other)))));
 }
 
-function projectPca2d(matrix) {
+function projectPca2d(matrix, terms) {
     const centered = centerColumns(matrix);
     const first = powerIterationForCovariance(centered);
+    const firstScores = centered.map((row) => dot(row, first.vector));
     const deflated = centered.map((row) => {
         const score = dot(row, first.vector);
         return row.map((value, index) => value - score * first.vector[index]);
     });
     const second = powerIterationForCovariance(deflated);
-    return centered.map((row) => [dot(row, first.vector), dot(row, second.vector)]);
+    const secondScores = centered.map((row) => dot(row, second.vector));
+    const totalVariance = centered.reduce((sum, row) => sum + dot(row, row), 0) || 1;
+    const firstRatio = dot(firstScores, firstScores) / totalVariance;
+    const secondRatio = dot(secondScores, secondScores) / totalVariance;
+    return {
+        coords: firstScores.map((score, index) => [score, secondScores[index]]),
+        pca: {
+            explainedVarianceRatio: [firstRatio, secondRatio],
+            cumulativeExplainedVarianceRatio: firstRatio + secondRatio,
+            components: [first.vector, second.vector].map((vector) => ({
+                positiveLoadings: componentTerms(vector, terms, "positive", 15),
+                negativeLoadings: componentTerms(vector, terms, "negative", 15)
+            }))
+        }
+    };
+}
+
+function componentTerms(vector, terms, direction, limit) {
+    const items = vector.map((weight, index) => ({ term: terms[index], weight }));
+    items.sort((a, b) => direction === "positive" ? b.weight - a.weight : a.weight - b.weight);
+    return items.slice(0, limit);
 }
 
 function centerColumns(matrix) {
