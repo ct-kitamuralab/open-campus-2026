@@ -36,7 +36,7 @@ a { color: inherit; text-decoration: none; }
   backdrop-filter: blur(14px);
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: .04em; }
-.brand-mark { display: grid; place-items: center; width: 36px; height: 36px; color: white; background: var(--orange); border-radius: 50%; font-size: 12px; font-weight: 900; }
+.brand-mark { display: block; flex: none; width: 36px; height: 36px; }
 nav { display: flex; align-items: center; gap: 24px; font-size: 14px; font-weight: 800; }
 .nav-button { padding: 9px 18px; color: white; background: var(--navy); border-radius: 999px; }
 

@@ -66,15 +66,10 @@ a {
 }
 
 .brand-mark {
-  display: grid;
-  place-items: center;
+  display: block;
+  flex: none;
   width: 36px;
   height: 36px;
-  color: white;
-  background: var(--orange);
-  border-radius: 50%;
-  font-size: 12px;
-  font-weight: 900;
 }
 
 nav {
