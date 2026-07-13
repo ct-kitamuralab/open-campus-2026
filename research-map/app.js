@@ -356,7 +356,7 @@
     $("#metricReference").textContent = shortMetricText(state.rows[ref]?.label || "-");
     $("#metricNearest").textContent = nearest ? shortMetricText(nearest.label) : "-";
     $("#qualitySummary").textContent = qualitySummary(state.rows);
-    $("#selectedBadge").textContent = state.rows[ref]?.label || "";
+    $("#selectedBadge").textContent = `比較の基準：${state.rows[ref]?.label || "-"}`;
   }
 
   function shortMetricText(value) {
@@ -382,6 +382,9 @@
     const labeled = labeledIndices(ref, selected);
     const scores = state.similarities[ref] || [];
     const facultyColors = colorMap(state.rows.map((row) => state.mode === "department" ? row.faculty : row.department));
+    $("#colorLegend").innerHTML = state.colorMode === "similarity"
+      ? '<i class="legend-gradient"></i>暖色ほど文章類似度が高い'
+      : `<i class="legend-colors"></i>色で${state.mode === "department" ? "学部" : "所属学科"}を区別`;
 
     const points = state.rows.map((row, index) => {
       const x = sx(state.coords[index][0]);
@@ -394,7 +397,7 @@
       const radius = pointRadius(row, isReference, isSelected);
       const label = labeled.has(index) ? `<text class="point-label ${state.mode === "teacher" ? "teacher-label" : ""}" x="${x + 10}" y="${y - 10}">${escapeHtml(row.shortLabel)}</text>` : "";
       return `
-        <g tabindex="0" role="button" aria-label="${escapeHtml(row.label)}を選択" data-index="${index}">
+        <g tabindex="0" role="button" aria-label="${escapeHtml(row.label)}を見る" data-index="${index}">
           <title>${escapeHtml(rowTitle(row, scores[index] || 0))}</title>
           <circle class="point ${isReference ? "selected" : ""} ${isSelected && !isReference ? "focused" : ""} ${row.quality === "weak" ? "weak-point" : ""}" cx="${x}" cy="${y}" r="${radius}" fill="${color}"></circle>
           ${label}
@@ -402,16 +405,16 @@
     }).join("");
 
     $("#scatterPlot").innerHTML = `
-      <svg viewBox="${viewBoxValue()}" aria-hidden="true">
-        <line class="axis-line" x1="${padding}" y1="${height / 2}" x2="${width - padding}" y2="${height / 2}"></line>
-        <line class="axis-line" x1="${width / 2}" y1="${padding}" x2="${width / 2}" y2="${height - padding}"></line>
+      <svg viewBox="${viewBoxValue()}" role="group" aria-label="研究紹介文の主な言葉の傾向を2次元に縮めたマップ">
         ${points}
       </svg>
       <p class="gesture-hint" aria-live="polite">2本指でスクロール・拡大縮小できます</p>`;
     bindMapPan();
     document.querySelectorAll("#scatterPlot [data-index]").forEach((node) => {
       node.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") selectRow(Number(node.dataset.index));
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        selectRow(Number(node.dataset.index));
       });
     });
   }
@@ -622,12 +625,18 @@
     const ref = referenceIndex();
     const selected = selectedIndex();
     const row = state.rows[selected];
-    $("#similarTitle").textContent = `${state.rows[ref].label}に近い${state.mode === "department" ? "学科" : "教員・研究室"}`;
+    const isReference = ref === selected;
+    const similarity = state.similarities[ref]?.[selected] || 0;
+    $("#similarTitle").textContent = `${state.rows[ref].label}と文章が似ている${state.mode === "department" ? "学科" : "教員・研究室"}`;
     $("#similarList").innerHTML = nearestRows(ref, state.mode === "department" ? 5 : 6).map((item) => rankItem(item, item.similarity)).join("");
     $("#selectedDepartmentName").textContent = row.label;
     $("#selectedFaculty").textContent = metadataLine(row);
+    $("#selectedSimilarityLabel").textContent = isReference ? "比較の出発点" : `${state.rows[ref].shortLabel}との文章類似度`;
+    $("#selectedSimilarityValue").textContent = isReference ? "この点から比べます" : `${Math.round(similarity * 100)} / 100`;
+    $("#selectedInterpretation").textContent = interpretationText(ref, selected);
     $("#selectedDescription").textContent = row.description || "研究本文が短いため、主にキーワードや研究室名で計算しています。";
     $("#selectedBadges").innerHTML = qualityBadges(row);
+    $("#selectedQualityNote").textContent = qualityNote(row);
     $("#selectedKeywords").innerHTML = row.keywords.length ? row.keywords.slice(0, 10).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("") : "<span>キーワードなし</span>";
     const link = $("#profileLink");
     link.hidden = !row.profileUrl;
@@ -650,13 +659,45 @@
   }
 
   function rankItem(item, score) {
-    const percent = Math.round(score * 100);
+    const similarity = Math.round(score * 100);
     return `
       <button class="rank-item" type="button" data-index="${item.index}">
-        <div class="rank-head"><strong>${escapeHtml(item.label)}</strong><span>${percent}%</span></div>
+        <div class="rank-head"><strong>${escapeHtml(item.label)}</strong><span>文章類似度 ${similarity}</span></div>
         <small>${escapeHtml(metadataLine(item))}</small>
-        <div class="progress-track"><i style="width: ${percent}%"></i></div>
+        <div class="progress-track" aria-hidden="true"><i style="width: ${similarity}%"></i></div>
       </button>`;
+  }
+
+  function interpretationText(reference, selected) {
+    if (reference === selected) {
+      return "この対象が比較の基準です。MAPの点を押すと、共通する言葉と文章類似度を確認できます。";
+    }
+    const terms = sharedTerms(reference, selected, 5);
+    if (!terms.length) {
+      return "強く共通する特徴語は少なく、今回の文章データでは異なる傾向として現れています。";
+    }
+    const quoted = terms.map((term) => `「${term}」`).join("、");
+    return `${quoted}などが両方の紹介文で重みを持つため、今回のデータでは関係があると計算されました。`;
+  }
+
+  function sharedTerms(reference, selected, limit) {
+    return state.terms
+      .map((term, index) => ({ term, contribution: state.matrix[reference][index] * state.matrix[selected][index] }))
+      .filter((item) => item.contribution > 0)
+      .sort((a, b) => b.contribution - a.contribution)
+      .slice(0, limit)
+      .map((item) => item.term);
+  }
+
+  function qualityNote(row) {
+    const notes = {
+      full: "研究紹介の本文を使って比較しています。",
+      summary: "短い紹介文が中心です。詳しい本文を使った対象より、少数の言葉の影響が大きくなります。",
+      keywords: "キーワードやテーマ名が中心です。研究全体ではなく、掲載された語の比較として見てください。",
+      weak: "利用できた文章が少ないため、この結果は参考として見てください。"
+    };
+    const warning = row.warnings.length ? " 取得元による注意情報も含まれます。" : "";
+    return `${notes[row.quality] || "掲載された文章の範囲で比較しています。"}${warning}`;
   }
 
   function departmentTeacherItems(row) {
@@ -673,7 +714,7 @@
     const departmentLabel = `<div class="compact-item"><strong>${escapeHtml(row.department)}</strong><span>所属学科</span></div>`;
     const near = nearestRows(selectedIndex(), 6)
       .filter((item) => item.department !== row.department)
-      .map((item) => `<button class="compact-item" type="button" data-index="${item.index}"><strong>${escapeHtml(item.label)}</strong><span>${Math.round(item.similarity * 100)}%</span></button>`)
+      .map((item) => `<button class="compact-item" type="button" data-index="${item.index}"><strong>${escapeHtml(item.label)}</strong><span>文章類似度 ${Math.round(item.similarity * 100)}</span></button>`)
       .join("");
     return departmentLabel + (departmentIndex >= 0 ? "" : "") + near;
   }
@@ -691,9 +732,9 @@
     const comparison = compareTerms(ref, selected, 10);
     $("#comparisonTitle").textContent = `${state.rows[ref].label}と${state.rows[selected].label}の比較`;
     $("#comparisonList").innerHTML = [
-      comparisonBlock("共通して多い語", comparison.common),
-      comparisonBlock(`${state.rows[ref].shortLabel}らしい語`, comparison.reference),
-      comparisonBlock(`${state.rows[selected].shortLabel}らしい語`, comparison.selected)
+      comparisonBlock("両方で重みを持つ語", comparison.common),
+      comparisonBlock(`${state.rows[ref].shortLabel}側で相対的に重い語`, comparison.reference),
+      comparisonBlock(`${state.rows[selected].shortLabel}側で相対的に重い語`, comparison.selected)
     ].join("");
   }
 
@@ -717,7 +758,7 @@
     return {
       common: items
         .filter((item) => item.reference > 0 && item.selected > 0)
-        .sort((a, b) => (b.reference + b.selected) - (a.reference + a.selected))
+        .sort((a, b) => (b.reference * b.selected) - (a.reference * a.selected))
         .slice(0, limit)
         .map((item) => item.term),
       reference: items
@@ -748,26 +789,26 @@
     const ref = referenceIndex();
     const scores = state.similarities[ref] || [];
     if (state.mode === "department") {
-      head.innerHTML = "<tr><th>学部</th><th>学科</th><th>教員数</th><th>類似度</th><th>品質</th><th>代表キーワード</th></tr>";
+      head.innerHTML = "<tr><th>学部</th><th>学科</th><th>教員数</th><th>文章類似度</th><th>品質</th><th>代表キーワード</th></tr>";
       body.innerHTML = state.rows.map((row, index) => `
         <tr>
           <td>${escapeHtml(row.faculty)}</td>
           <td><strong>${escapeHtml(row.department)}</strong></td>
           <td>${row.teacherCount}</td>
-          <td>${Math.round((scores[index] || 0) * 100)}%</td>
+          <td>${Math.round((scores[index] || 0) * 100)}</td>
           <td>${qualityBadges(row)}</td>
           <td>${escapeHtml(row.keywords.slice(0, 8).join(" / "))}</td>
         </tr>`).join("");
       return;
     }
 
-    head.innerHTML = "<tr><th>学科</th><th>教員</th><th>研究室</th><th>類似度</th><th>品質</th><th>キーワード</th></tr>";
+    head.innerHTML = "<tr><th>学科</th><th>教員</th><th>研究室</th><th>文章類似度</th><th>品質</th><th>キーワード</th></tr>";
     body.innerHTML = state.rows.map((row, index) => `
       <tr>
         <td>${escapeHtml(row.department)}</td>
         <td><strong>${escapeHtml(row.name)}</strong><br><span class="muted-cell">${escapeHtml(row.position)}</span></td>
         <td>${escapeHtml(row.lab)}</td>
-        <td>${Math.round((scores[index] || 0) * 100)}%</td>
+        <td>${Math.round((scores[index] || 0) * 100)}</td>
         <td>${qualityBadges(row)}</td>
         <td>${escapeHtml(row.keywords.slice(0, 6).join(" / "))}</td>
       </tr>`).join("");
@@ -782,10 +823,10 @@
   }
 
   function rowTitle(row, similarity) {
-    const percent = Math.round(similarity * 100);
+    const score = Math.round(similarity * 100);
     return row.kind === "department"
-      ? `${row.department} / 類似度${percent}% / 教員${row.teacherCount}人 / ${qualityText(row)}`
-      : `${row.name} / 類似度${percent}% / ${row.department} / ${row.lab || row.position} / ${qualityText(row)}`;
+      ? `${row.department} / 文章類似度${score} / 教員${row.teacherCount}人 / ${qualityText(row)}`
+      : `${row.name} / 文章類似度${score} / ${row.department} / ${row.lab || row.position} / ${qualityText(row)}`;
   }
 
   function metadataLine(row) {

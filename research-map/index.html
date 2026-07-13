@@ -33,28 +33,33 @@
         <h1>研究分野<span>マップ</span></h1>
         <p class="experience-label">教員紹介文をデータとして読む<strong>言葉の近さから、学科と研究室の関係を見てみよう</strong></p>
         <p class="hero-lead">
-          公式ページから集めた教員ごとの研究紹介文をTF-IDFで数値化し、PCAで2次元の地図にします。
-          全学科を対象に、高度応用情報科学科がどの学科や研究室と近いのかを探索できます。
+          公式ページの研究紹介文に出てくる言葉をコンピューターで比べました。
+          気になる学科を選び、どの学科と、どんな言葉でつながっているのか探してみましょう。
         </p>
         <div class="hero-actions">
-          <a class="primary-button" href="#visualize">可視化を見る</a>
+          <a class="primary-button" href="#controls">体験をはじめる</a>
           <a class="secondary-button" href="../">トップへ戻る</a>
         </div>
       </div>
       <div class="hero-card" aria-label="研究分野マップの流れ">
-        <div><strong>1</strong><span>研究紹介文を数値化</span></div>
-        <i>+</i>
-        <div><strong>2</strong><span>近さと特徴語を計算</span></div>
-        <i>=</i>
-        <div><strong>3</strong><span>地図で関係を見る</span></div>
+        <div><strong>1</strong><span>比べる基準を選ぶ</span></div>
+        <i>↓</i>
+        <div><strong>2</strong><span>気になる点を押す</span></div>
+        <i>↓</i>
+        <div><strong>3</strong><span>近くなった理由を見る</span></div>
       </div>
     </section>
 
     <section id="controls" class="controls section">
       <div class="section-heading">
         <p class="eyebrow">CONTROLS</p>
-        <h2>操作</h2>
-        <p>学科から探すか、教員・研究室から探すかを切り替えられます。基準対象を変えると、近い対象や比較内容が変わります。</p>
+        <h2>まず、比べる基準を選ぼう</h2>
+        <p>最初は「高度応用情報科学科」が選ばれています。慣れたら、ほかの学科や教員・研究室でも試してみてください。</p>
+      </div>
+      <div class="experience-steps" aria-label="体験の進め方">
+        <article><span>STEP 1</span><strong>基準を選ぶ</strong><p>どの学科から関係を探すか決めます。</p></article>
+        <article><span>STEP 2</span><strong>点を押す</strong><p>MAPで気になる学科を選びます。</p></article>
+        <article><span>STEP 3</span><strong>理由を見る</strong><p>共通する言葉から関係を読み解きます。</p></article>
       </div>
       <div class="control-grid">
         <fieldset class="control-card mode-card">
@@ -72,9 +77,9 @@
           <label><input type="radio" name="colorMode" value="faculty"> 学部・所属学科</label>
         </fieldset>
         <div class="control-card">
-          <span>見方</span>
-          <strong>近いほど似ている</strong>
-          <p>点の位置は研究紹介文の言葉の傾向から作った地図です。</p>
+          <span>次にすること</span>
+          <strong>MAPの点を押す</strong>
+          <p>選んだ対象と基準との共通語や違いが表示されます。</p>
         </div>
       </div>
     </section>
@@ -82,30 +87,38 @@
     <section id="visualize" class="visualize section">
       <div class="section-heading">
         <p class="eyebrow">VISUALIZATION</p>
-        <h2>研究内容の関係性</h2>
-        <p>近くにある点ほど、研究紹介文とキーワードの特徴が似ています。このマップは公式分類ではなく、文章データから見た関係性です。</p>
+        <h2>言葉から見つけた研究のつながり</h2>
+        <p>点の近さは、研究紹介文に現れた主な言葉の傾向を2次元で眺めたものです。気になる点を押し、右側に出る理由とあわせて見てください。</p>
       </div>
 
       <article id="mapCard" class="map-card">
         <div class="map-card-header">
           <div>
             <p class="eyebrow">MAP</p>
-            <h3>2次元マップと選択内容</h3>
-            <p class="metric-note">類似度は研究紹介文に出てくる語の近さです。学科選びでは、授業内容や入試情報とあわせて見てください。</p>
+            <h3>学科・研究室のことばMAP</h3>
+            <p class="metric-note">これは学科の優劣や、あなたとの相性を判定するものではありません。公式紹介文に使われた言葉だけを比べています。</p>
           </div>
-          <span id="selectedBadge" class="status-badge">高度応用情報科学科</span>
+          <span id="selectedBadge" class="status-badge">比較の基準：高度応用情報科学科</span>
         </div>
 
         <div class="metric-grid" aria-label="分析指標">
           <article><span id="countMetricLabel">学科数</span><strong id="departmentCount">-</strong></article>
-          <article><span>基準対象</span><strong id="metricReference">-</strong></article>
-          <article><span>最も近い対象</span><strong id="metricNearest">-</strong></article>
+          <article><span>比較の基準</span><strong id="metricReference">-</strong></article>
+          <article><span>このデータで最も類似</span><strong id="metricNearest">-</strong></article>
           <article><span>データ品質</span><strong id="qualitySummary">-</strong></article>
-          <article><span>解析方法</span><strong id="metricMethod">TF-IDF + PCA</strong></article>
+          <article><span>比べ方</span><strong id="metricMethod">特徴語 + 文章類似度</strong></article>
         </div>
 
         <div class="analysis-grid">
           <div class="map-main">
+            <p class="map-instruction"><strong>やってみよう</strong> 気になる点を押すと、右側に「なぜ関係があるのか」が表示されます。</p>
+            <div class="map-legend" aria-label="マップの凡例">
+              <span><i class="legend-dot reference-dot"></i>比較の基準</span>
+              <span><i class="legend-dot focused-dot"></i>いま見ている対象</span>
+              <span id="colorLegend"><i class="legend-gradient"></i>暖色ほど文章類似度が高い</span>
+              <span><i class="legend-dot size-dot"></i>大きいほど教員数が多い</span>
+              <span><i class="legend-dot faded-dot"></i>薄い点は文章が少ない</span>
+            </div>
             <div class="map-toolbar" aria-label="マップ操作">
               <button id="mapFullscreenButton" type="button">全画面</button>
               <button id="mapZoomInButton" type="button" aria-label="マップを拡大">+</button>
@@ -113,15 +126,24 @@
               <button id="mapResetButton" type="button">リセット</button>
             </div>
             <div id="scatterPlot" class="scatter-plot" role="region" aria-label="研究分野マップ散布図"></div>
-            <p class="chart-note">点の位置はPCAによる2次元化、白い縁取りの点は基準対象です。拡大後はPCではドラッグ、モバイルでは2本指ドラッグで移動できます。</p>
+            <p class="chart-note">近い点は「主な言葉の傾向」が似ています。ただしMAPは情報を2次元に縮めた近似図です。正確な比較は文章類似度と共通語で確認してください。</p>
           </div>
 
           <aside class="selected-panel">
             <article class="info-card featured-info">
-              <p class="eyebrow">SELECTED</p>
-              <h3 id="selectedDepartmentName">選択対象</h3>
+              <p class="eyebrow">いま見ている対象</p>
+              <h3 id="selectedDepartmentName">選択した対象</h3>
               <p id="selectedFaculty" class="muted-text"></p>
+              <div class="selected-score">
+                <span id="selectedSimilarityLabel">基準との文章類似度</span>
+                <strong id="selectedSimilarityValue">-</strong>
+              </div>
+              <div class="interpretation-card">
+                <strong>なぜ関係があるの？</strong>
+                <p id="selectedInterpretation">共通する言葉を計算しています。</p>
+              </div>
               <div id="selectedBadges" class="badge-row"></div>
+              <p id="selectedQualityNote" class="quality-message"></p>
               <p id="selectedDescription"></p>
               <div id="selectedKeywords" class="keyword-list"></div>
               <a id="profileLink" class="profile-link" href="#" target="_blank" rel="noopener" hidden>公式ページを見る</a>
@@ -132,7 +154,8 @@
         <div class="map-support-grid">
           <article class="info-card">
             <p class="eyebrow">SIMILAR ITEMS</p>
-            <h3 id="similarTitle">基準対象に近い対象</h3>
+            <h3 id="similarTitle">基準と文章が似ている対象</h3>
+            <p class="card-note">数値は研究内容の一致率ではなく、このデータ内で言葉の使われ方を比べる目安です。</p>
             <div id="similarList" class="rank-list"></div>
           </article>
           <article class="info-card">
@@ -147,12 +170,12 @@
     <section id="compare" class="comparison section">
       <div class="section-heading">
         <p class="eyebrow">COMPARISON</p>
-        <h2>特色と比較</h2>
-        <p>基準対象と選択対象の共通点・違いを、TF-IDFで重みが高い語から見ます。</p>
+        <h2>どの言葉が関係をつくった？</h2>
+        <p>「比較の基準」と「いま見ている対象」を、コンピューターが強く評価した言葉で比べます。機械的に抽出した語なので、公式な研究分野名とは限りません。</p>
       </div>
       <div class="detail-grid">
         <article class="detail-card">
-          <h3>特徴語</h3>
+          <h3>紹介文で重みが高かった語</h3>
           <div id="termList" class="term-list"></div>
         </article>
         <article class="detail-card">
@@ -162,12 +185,29 @@
       </div>
     </section>
 
+    <section class="method-section section">
+      <div class="section-heading">
+        <p class="eyebrow">HOW IT WORKS</p>
+        <h2>30秒でわかる計算方法</h2>
+        <p>難しい式を知らなくても大丈夫です。コンピューターは、次の3段階で研究紹介文を比べています。</p>
+      </div>
+      <div class="method-grid">
+        <article class="method-item"><span>1</span><div><p class="method-name">特徴的な言葉を見つける</p><h3>TF-IDF</h3><p>その文章によく出て、ほかの文章では珍しい言葉を強く評価します。</p></div></article>
+        <article class="method-item"><span>2</span><div><p class="method-name">文章を直接比べる</p><h3>コサイン類似度</h3><p>言葉の重みの組み合わせを比べます。ランキングと数値にはこちらを使います。</p></div></article>
+        <article class="method-item"><span>3</span><div><p class="method-name">全体を地図にする</p><h3>PCA（主成分分析）</h3><p>たくさんの言葉の違いを2次元に縮めます。MAPは全体像を見るための近似です。</p></div></article>
+      </div>
+      <div class="method-summary">
+        <strong>MAPと文章類似度は役割が違います</strong>
+        <p>MAPは全体の傾向を探す入口、文章類似度と共通語は2つの対象を詳しく確かめる結果です。MAPの左右・上下そのものに、決まった研究分野の意味はありません。</p>
+      </div>
+    </section>
+
     <section class="data-section section">
       <div class="source-card">
         <div>
           <p class="eyebrow">DATA SOURCE</p>
           <h2>情報源と分析データ</h2>
-          <p>公式学科ページと公式教員ページの研究紹介文を使っています。全件データ、品質バッジの見方、公式ページへのリンクは別ページにまとめました。</p>
+          <p>紹介文の長さや詳しさは対象ごとに異なります。全件データ、品質バッジ、分析方法、結果から分かること・分からないことを確認できます。</p>
         </div>
         <a class="primary-button" href="sources.html">情報源を見る</a>
       </div>

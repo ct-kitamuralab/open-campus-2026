@@ -40,6 +40,19 @@
             </div>
         </section>
 
+        <section class="section method-section">
+            <div class="section-heading">
+                <p class="eyebrow">METHOD</p>
+                <h2>どのように計算しているの？</h2>
+                <p>学科や教員を公式に分類するのではなく、公式紹介文に現れた言葉を同じ手順で比較しています。</p>
+            </div>
+            <div class="method-grid">
+                <article class="method-item"><span>1</span><div><p class="method-name">文章を用意</p><h3>教員ごとの紹介文</h3><p>研究内容、説明文、テーマ、研究室名、キーワードを対象にします。学科MAPでは所属教員の文章をまとめます。</p></div></article>
+                <article class="method-item"><span>2</span><div><p class="method-name">特徴語を数値化</p><h3>TF-IDF</h3><p>その対象で多く使われ、ほかでは珍しい言葉ほど大きな重みを付けます。</p></div></article>
+                <article class="method-item"><span>3</span><div><p class="method-name">比較と地図</p><h3>類似度 + PCA</h3><p>文章類似度で直接比較し、PCAで全体の傾向を2次元のMAPに縮めます。</p></div></article>
+            </div>
+        </section>
+
         <section class="section controls">
             <div class="section-heading">
                 <p class="eyebrow">ABOUT</p>
@@ -67,6 +80,18 @@
                     <strong>参考扱い</strong>
                     <p>使えるテキストが少ないため、近さの解釈には注意が必要です。</p>
                 </article>
+            </div>
+        </section>
+
+        <section class="section limits-section">
+            <div class="section-heading">
+                <p class="eyebrow">IMPORTANT</p>
+                <h2>分かること・分からないこと</h2>
+            </div>
+            <div class="limit-grid">
+                <article class="limit-card can"><span>分かること</span><strong>紹介文で使われた言葉の関係</strong><p>共通する研究対象や技術を見つけ、学科をまたいで研究を探索するきっかけになります。</p></article>
+                <article class="limit-card cannot"><span>分からないこと</span><strong>学科の優劣・相性・進路適性</strong><p>文章類似度は研究内容の一致率や入試の合格率ではありません。授業、進路、入試情報は公式案内で確認してください。</p></article>
+                <article class="limit-card caution"><span>注意すること</span><strong>文章量と書き方の差</strong><p>短文だけの対象では、研究室名や少数の語が結果を左右します。機械抽出のため不自然な語が入る場合もあります。</p></article>
             </div>
         </section>
 
