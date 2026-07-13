@@ -3,7 +3,7 @@
 
   const TARGET_DEPARTMENT = "高度応用情報科学科";
   const COLORS = ["#ff6b35", "#15284c", "#20c4d9", "#dff23a", "#7d5fff", "#00a676", "#f0a202", "#d7263d", "#6f42c1", "#008c7a"];
-  const ANALYSIS_DATA_URL = "../data/clustering-analysis.json";
+  const ANALYSIS_DATA_URL = "../data/research-map-analysis.json";
   const KUROMOJI_SCRIPT_URL = "../vendor/kuromoji.js";
   const KUROMOJI_DICT_PATH = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/";
   const MAX_TERMS = 1400;
@@ -38,10 +38,10 @@
 
   function buildTeacherRows(teachers) {
     return teachers.map((teacher, index) => {
-      const quality = teacher.cluster?.quality || "weak";
+      const quality = teacher.research_map?.quality || "weak";
       const keywords = normalizeKeywords(keywordSource(teacher));
       const theme = teacher.source_text?.theme || "";
-      const research = teacher.research || teacher.description || theme || teacher.cluster?.text || "";
+      const research = teacher.research || teacher.description || theme || teacher.research_map?.text || "";
       return {
         id: `teacher:${teacher.id || index}`,
         kind: "teacher",
@@ -58,7 +58,7 @@
         text: joinUnique([teacher.lab, theme, teacher.research, teacher.description, teacher.source_text?.keywords_text]),
         quality,
         qualityCounts: { [quality]: 1 },
-        warnings: teacher.cluster?.warnings || [],
+        warnings: teacher.research_map?.warnings || [],
         teacherCount: 1,
         profileUrl: teacher.profile_url || teacher.source_department_url || ""
       };
@@ -74,10 +74,10 @@
 
     return Array.from(groups, ([department, members]) => {
       const faculty = members.find((member) => member.faculty)?.faculty || "";
-      const qualityCounts = countBy(members, (member) => member.cluster?.quality || "weak");
+      const qualityCounts = countBy(members, (member) => member.research_map?.quality || "weak");
       const keywords = topKeywords(members.flatMap((member) => normalizeKeywords(keywordSource(member))), 12);
-      const warnings = unique(members.flatMap((member) => member.cluster?.warnings || []));
-      const representative = members.find((member) => member.cluster?.quality === "full" && (member.research || member.description))
+      const warnings = unique(members.flatMap((member) => member.research_map?.warnings || []));
+      const representative = members.find((member) => member.research_map?.quality === "full" && (member.research || member.description))
         || members.find((member) => member.research || member.description || member.source_text?.theme)
         || members[0];
       const sampleTexts = members
@@ -99,7 +99,7 @@
           ? `教員${members.length}人の研究紹介を集約しています。例: ${sampleTexts.join(" ")}`
           : `教員${members.length}人の研究キーワードを集約しています。`,
         keywords,
-        text: joinUnique(members.map((member) => member.cluster?.text || "")),
+        text: joinUnique(members.map((member) => member.research_map?.text || "")),
         quality: aggregateQuality(qualityCounts, members.length),
         qualityCounts,
         warnings,
@@ -634,8 +634,8 @@
     if (row.profileUrl) link.href = row.profileUrl;
 
     $("#memberTitle").textContent = state.mode === "department" ? "所属教員・研究室" : "所属学科と近い学科";
-    $("#clusterMemberList").innerHTML = state.mode === "department" ? departmentTeacherItems(row) : teacherRouteItems(row);
-    document.querySelectorAll("#similarList [data-index], #clusterMemberList [data-index]").forEach((node) => {
+    $("#relatedMemberList").innerHTML = state.mode === "department" ? departmentTeacherItems(row) : teacherRouteItems(row);
+    document.querySelectorAll("#similarList [data-index], #relatedMemberList [data-index]").forEach((node) => {
       node.addEventListener("click", () => selectRow(Number(node.dataset.index)));
     });
   }
