@@ -880,7 +880,7 @@
 - PCA上の距離: ${distance.toFixed(6)}
 - 類似度への寄与が大きい共通語: ${contributionLine(contributions)}`;
 
-    return `${markdownIntroduction(`研究分野マップ: ${referenceRow.label}と${selectedRow.label}の比較`)}
+    return `${markdownIntroduction(`学科・研究分野マップ: ${referenceRow.label}と${selectedRow.label}の比較`)}
 ${pcaMarkdown(analysis)}
 ## 今回の比較
 
@@ -951,7 +951,7 @@ ${itemSections}
 `;
     }).join("\n");
 
-    return `${markdownIntroduction("研究分野マップ: 千葉工業大学16学科の俯瞰データ")}
+    return `${markdownIntroduction("学科・研究分野マップ: 千葉工業大学16学科の俯瞰データ")}
 ${pcaMarkdown(analysis)}
 ## 大学全体の見方
 
@@ -988,7 +988,7 @@ ${similarityMatrixMarkdown(analysis, "D")}
       return `- T${String(index + 1).padStart(3, "0")} ${markdownText(row.label)} | 所属: ${markdownText(row.department || "情報なし")} | 研究室: ${markdownText(row.lab || "情報なし")} | 品質: ${markdownText(qualityText(row) || "情報なし")} | PC1=${formatCoordinate(coord?.[0])}, PC2=${formatCoordinate(coord?.[1])} | 特徴語: ${termLine(terms)} | 類似上位: ${termLine(nearest)} | 公式: ${row.profileUrl || "掲載なし"}`;
     }).join("\n");
 
-    return `${markdownIntroduction("研究分野マップ: 185教員・研究室の俯瞰データ")}
+    return `${markdownIntroduction("学科・研究分野マップ: 185教員・研究室の俯瞰データ")}
 ${pcaMarkdown(analysis)}
 ## 教員・研究室全体の見方
 

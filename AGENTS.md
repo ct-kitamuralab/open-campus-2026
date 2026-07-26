@@ -24,7 +24,7 @@ No automated test suite is currently configured. Validate changes manually in a 
 
 ## Commit & Pull Request Guidelines
 
-Recent commits follow a Conventional Commit style, often in Japanese, such as `feat: 研究分野マップ...`, `fix: モバイル...`, and `chore: GitHub Actions...`. Use a concise type prefix (`feat:`, `fix:`, `chore:`, `docs:`) and describe the user-visible change.
+Recent commits follow a Conventional Commit style, often in Japanese, such as `feat: 学科・研究分野マップ...`, `fix: モバイル...`, and `chore: GitHub Actions...`. Use a concise type prefix (`feat:`, `fix:`, `chore:`, `docs:`) and describe the user-visible change.
 
 Pull requests should include a short summary, affected pages or scripts, manual verification steps, and screenshots for visual changes. Link related issues when available. If `data/teachers.json` changes, mention whether `data/research-map-analysis.json` was regenerated.
 
