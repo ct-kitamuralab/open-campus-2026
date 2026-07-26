@@ -4,7 +4,7 @@ const crypto = require("crypto");
 
 const ROOT = path.resolve(__dirname, "..");
 const TEACHERS_PATH = path.join(ROOT, "data", "teachers.json");
-const OUTPUT_PATH = path.join(ROOT, "data", "clustering-analysis.json");
+const OUTPUT_PATH = path.join(ROOT, "data", "research-map-analysis.json");
 const KUROMOJI_PATH = path.join(ROOT, "vendor", "kuromoji.js");
 const KUROMOJI_DICT_PATH = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/";
 const TARGET_DEPARTMENT = "高度応用情報科学科";
@@ -37,21 +37,30 @@ async function main() {
 
 function buildAnalysis(rows) {
     const { terms, matrix } = vectorize(rows);
+    const projection = projectPca2d(matrix, terms);
     return {
         rows,
         terms,
         matrix: matrix.map((row) => row.map(roundNumber)),
-        coords: projectPca2d(matrix).map(([x, y]) => [roundNumber(x), roundNumber(y)]),
+        coords: projection.coords.map(([x, y]) => [roundNumber(x), roundNumber(y)]),
+        pca: {
+            explainedVarianceRatio: projection.pca.explainedVarianceRatio.map(roundNumber),
+            cumulativeExplainedVarianceRatio: roundNumber(projection.pca.cumulativeExplainedVarianceRatio),
+            components: projection.pca.components.map((component) => ({
+                positiveLoadings: component.positiveLoadings.map((item) => ({ term: item.term, weight: roundNumber(item.weight) })),
+                negativeLoadings: component.negativeLoadings.map((item) => ({ term: item.term, weight: roundNumber(item.weight) }))
+            }))
+        },
         similarities: computeSimilarities(matrix).map((row) => row.map(roundNumber))
     };
 }
 
 function buildTeacherRows(sourceTeachers) {
     return sourceTeachers.map((teacher, index) => {
-        const quality = teacher.cluster?.quality || "weak";
+        const quality = teacher.research_map?.quality || "weak";
         const keywords = normalizeKeywords(keywordSource(teacher));
         const theme = teacher.source_text?.theme || "";
-        const research = teacher.research || teacher.description || theme || teacher.cluster?.text || "";
+        const research = teacher.research || teacher.description || theme || teacher.research_map?.text || "";
         return {
             id: `teacher:${teacher.id || index}`,
             kind: "teacher",
@@ -68,7 +77,7 @@ function buildTeacherRows(sourceTeachers) {
             text: joinUnique([teacher.lab, theme, teacher.research, teacher.description, teacher.source_text?.keywords_text]),
             quality,
             qualityCounts: { [quality]: 1 },
-            warnings: teacher.cluster?.warnings || [],
+            warnings: teacher.research_map?.warnings || [],
             teacherCount: 1,
             profileUrl: teacher.profile_url || teacher.source_department_url || ""
         };
@@ -84,10 +93,10 @@ function buildDepartmentRows(sourceTeachers) {
 
     return Array.from(groups, ([department, members]) => {
         const faculty = members.find((member) => member.faculty)?.faculty || "";
-        const qualityCounts = countBy(members, (member) => member.cluster?.quality || "weak");
+        const qualityCounts = countBy(members, (member) => member.research_map?.quality || "weak");
         const keywords = topKeywords(members.flatMap((member) => normalizeKeywords(keywordSource(member))), 12);
-        const warnings = unique(members.flatMap((member) => member.cluster?.warnings || []));
-        const representative = members.find((member) => member.cluster?.quality === "full" && (member.research || member.description))
+        const warnings = unique(members.flatMap((member) => member.research_map?.warnings || []));
+        const representative = members.find((member) => member.research_map?.quality === "full" && (member.research || member.description))
             || members.find((member) => member.research || member.description || member.source_text?.theme)
             || members[0];
         const sampleTexts = members
@@ -109,7 +118,7 @@ function buildDepartmentRows(sourceTeachers) {
                 ? `教員${members.length}人の研究紹介を集約しています。例: ${sampleTexts.join(" ")}`
                 : `教員${members.length}人の研究キーワードを集約しています。`,
             keywords,
-            text: joinUnique(members.map((member) => member.cluster?.text || "")),
+            text: joinUnique(members.map((member) => member.research_map?.text || "")),
             quality: aggregateQuality(qualityCounts, members.length),
             qualityCounts,
             warnings,
@@ -272,15 +281,36 @@ function computeSimilarities(matrix) {
     return matrix.map((row) => matrix.map((other) => Math.max(0, Math.min(1, dot(row, other)))));
 }
 
-function projectPca2d(matrix) {
+function projectPca2d(matrix, terms) {
     const centered = centerColumns(matrix);
     const first = powerIterationForCovariance(centered);
+    const firstScores = centered.map((row) => dot(row, first.vector));
     const deflated = centered.map((row) => {
         const score = dot(row, first.vector);
         return row.map((value, index) => value - score * first.vector[index]);
     });
     const second = powerIterationForCovariance(deflated);
-    return centered.map((row) => [dot(row, first.vector), dot(row, second.vector)]);
+    const secondScores = centered.map((row) => dot(row, second.vector));
+    const totalVariance = centered.reduce((sum, row) => sum + dot(row, row), 0) || 1;
+    const firstRatio = dot(firstScores, firstScores) / totalVariance;
+    const secondRatio = dot(secondScores, secondScores) / totalVariance;
+    return {
+        coords: firstScores.map((score, index) => [score, secondScores[index]]),
+        pca: {
+            explainedVarianceRatio: [firstRatio, secondRatio],
+            cumulativeExplainedVarianceRatio: firstRatio + secondRatio,
+            components: [first.vector, second.vector].map((vector) => ({
+                positiveLoadings: componentTerms(vector, terms, "positive", 15),
+                negativeLoadings: componentTerms(vector, terms, "negative", 15)
+            }))
+        }
+    };
+}
+
+function componentTerms(vector, terms, direction, limit) {
+    const items = vector.map((weight, index) => ({ term: terms[index], weight }));
+    items.sort((a, b) => direction === "positive" ? b.weight - a.weight : a.weight - b.weight);
+    return items.slice(0, limit);
 }
 
 function centerColumns(matrix) {

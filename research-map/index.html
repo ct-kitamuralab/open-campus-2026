@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="千葉工業大学の公式教員紹介データから、研究内容や学科・教員同士の近さを可視化する学科・研究分野マップです。">
+  <title>学科・研究分野マップ | 高度応用情報科学科 OC</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <a class="brand" href="../" aria-label="トップへ戻る">
+      <img class="brand-mark" src="../favicon.svg" alt="">
+      <span>高度応用情報科学科 OC</span>
+    </a>
+    <nav aria-label="ページ内メニュー">
+      <a href="../">トップへ</a>
+      <a href="#controls">操作</a>
+      <a href="#visualize">可視化</a>
+      <a href="#compare">比較</a>
+      <a class="nav-button" href="sources.html">情報源</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">RESEARCH FIELD MAP</p>
+        <p class="event-name">Data Science Experience</p>
+        <h1>研究分野<span>マップ</span></h1>
+        <p class="experience-label">教員紹介文をデータとして読む<strong>言葉の近さから、学科と研究室の関係を見てみよう</strong></p>
+        <p class="hero-lead">
+          公式ページの研究紹介文に出てくる言葉をコンピューターで比べました。
+          気になる学科を選び、どの学科と、どんな言葉でつながっているのか探してみましょう。
+        </p>
+        <div class="hero-actions">
+          <a class="primary-button" href="#controls">体験をはじめる</a>
+          <a class="secondary-button" href="../">トップへ戻る</a>
+        </div>
+      </div>
+      <div class="hero-card" aria-label="学科・研究分野マップの流れ">
+        <div><strong>1</strong><span>比べる基準を選ぶ</span></div>
+        <i>↓</i>
+        <div><strong>2</strong><span>気になる点を押す</span></div>
+        <i>↓</i>
+        <div><strong>3</strong><span>近くなった理由を見る</span></div>
+      </div>
+    </section>
+
+    <section id="controls" class="controls section">
+      <div class="section-heading">
+        <p class="eyebrow">CONTROLS</p>
+        <h2>まず、比べる基準を選ぼう</h2>
+        <p>最初は「高度応用情報科学科」が選ばれています。慣れたら、ほかの学科や教員・研究室でも試してみてください。</p>
+      </div>
+      <div class="experience-steps" aria-label="体験の進め方">
+        <article><span>STEP 1</span><strong>基準を選ぶ</strong>
+          <p>どの学科から関係を探すか決めます。</p>
+        </article>
+        <article><span>STEP 2</span><strong>点を押す</strong>
+          <p>MAPで気になる学科を選びます。</p>
+        </article>
+        <article><span>STEP 3</span><strong>理由を見る</strong>
+          <p>共通する言葉から関係を読み解きます。</p>
+        </article>
+      </div>
+      <div class="control-grid">
+        <fieldset class="control-card mode-card">
+          <legend>表示対象</legend>
+          <label><input type="radio" name="analysisMode" value="department" checked> 学科マップ</label>
+          <label><input type="radio" name="analysisMode" value="teacher"> 教員・研究室マップ</label>
+        </fieldset>
+        <label class="control-card">
+          <span id="selectLabel">基準にする学科</span>
+          <select id="departmentSelect"></select>
+        </label>
+        <fieldset class="control-card color-card">
+          <legend>色分け</legend>
+          <label><input type="radio" name="colorMode" value="similarity" checked> 基準対象との近さ</label>
+          <label><input type="radio" name="colorMode" value="faculty"> 学科ごとの色</label>
+        </fieldset>
+        <div class="control-card">
+          <span>次にすること</span>
+          <strong>MAPの点を押す</strong>
+          <p>選んだ対象と基準との共通語や違いが表示されます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="visualize" class="visualize section">
+      <div class="section-heading">
+        <p class="eyebrow">VISUALIZATION</p>
+        <h2>言葉から見つけた研究のつながり</h2>
+        <p>点の近さは、研究紹介文に現れた主な言葉の傾向を2次元で眺めたものです。気になる点を押し、右側に出る理由とあわせて見てください。</p>
+      </div>
+
+      <article id="mapCard" class="map-card">
+        <div class="map-card-header">
+          <div>
+            <p class="eyebrow">MAP</p>
+            <h3>学科・研究室のことばMAP</h3>
+            <p class="metric-note">これは学科の優劣や、あなたとの相性を判定するものではありません。公式紹介文に使われた言葉だけを比べています。</p>
+          </div>
+          <span id="selectedBadge" class="status-badge">比較の基準：高度応用情報科学科</span>
+        </div>
+
+        <div class="metric-grid" aria-label="分析指標">
+          <article><span id="countMetricLabel">学科数</span><strong id="departmentCount">-</strong></article>
+          <article><span>比較の基準</span><strong id="metricReference">-</strong></article>
+          <article><span>このデータで最も類似</span><strong id="metricNearest">-</strong></article>
+          <article><span>データ品質</span><strong id="qualitySummary">-</strong></article>
+          <article><span>比べ方</span><strong id="metricMethod">特徴語 + 文章類似度</strong></article>
+        </div>
+
+        <div class="analysis-grid">
+          <div class="map-main">
+            <p class="map-instruction"><strong>やってみよう</strong> 気になる点を押すと、右側に「なぜ関係があるのか」が表示されます。</p>
+            <div class="map-legend" aria-label="マップの凡例">
+              <span><i class="legend-dot reference-dot"></i>比較の基準</span>
+              <span><i class="legend-dot focused-dot"></i>いま見ている対象</span>
+              <span id="colorLegend"><i class="legend-gradient"></i>暖色ほど文章類似度が高い</span>
+              <span><i class="legend-dot size-dot"></i>大きいほど教員数が多い</span>
+              <span><i class="legend-dot faded-dot"></i>薄い点は文章が少ない</span>
+            </div>
+            <div class="map-toolbar" aria-label="マップ操作">
+              <button id="mapFullscreenButton" type="button">全画面</button>
+              <button id="mapZoomInButton" type="button" aria-label="マップを拡大">+</button>
+              <button id="mapZoomOutButton" type="button" aria-label="マップを縮小">-</button>
+              <button id="mapResetButton" type="button">リセット</button>
+            </div>
+            <div id="scatterPlot" class="scatter-plot" role="region" aria-label="学科・研究分野マップ散布図"></div>
+            <p class="chart-note">近い点は「主な言葉の傾向」が似ています。ただしMAPは情報を2次元に縮めた近似図です。正確な比較は文章類似度と共通語で確認してください。</p>
+          </div>
+
+          <aside class="selected-panel">
+            <article class="info-card featured-info">
+              <p class="eyebrow">いま見ている対象</p>
+              <h3 id="selectedDepartmentName">選択した対象</h3>
+              <p id="selectedFaculty" class="muted-text"></p>
+              <div class="selected-score">
+                <span id="selectedSimilarityLabel">基準との文章類似度</span>
+                <strong id="selectedSimilarityValue">-</strong>
+              </div>
+              <div class="interpretation-card">
+                <strong>なぜ関係があるの？</strong>
+                <p id="selectedInterpretation">共通する言葉を計算しています。</p>
+              </div>
+              <div id="selectedBadges" class="badge-row"></div>
+              <p id="selectedQualityNote" class="quality-message"></p>
+              <p id="selectedDescription"></p>
+              <div id="selectedKeywords" class="keyword-list"></div>
+              <a id="profileLink" class="profile-link" href="#" target="_blank" rel="noopener" hidden>公式ページを見る</a>
+            </article>
+          </aside>
+        </div>
+
+        <div class="map-support-grid">
+          <article class="info-card">
+            <p class="eyebrow">SIMILAR ITEMS</p>
+            <h3 id="similarTitle">基準と文章が似ている対象</h3>
+            <p class="card-note">数値は研究内容の一致率ではなく、このデータ内で言葉の使われ方を比べる目安です。</p>
+            <div id="similarList" class="rank-list"></div>
+          </article>
+          <article class="info-card">
+            <p class="eyebrow">RELATED ROUTE</p>
+            <h3 id="memberTitle">所属教員・近い学科</h3>
+            <div id="relatedMemberList" class="compact-list"></div>
+          </article>
+        </div>
+      </article>
+    </section>
+
+    <section id="compare" class="comparison section">
+      <div class="section-heading">
+        <p class="eyebrow">COMPARISON</p>
+        <h2>どの言葉が関係をつくった？</h2>
+        <p>「比較の基準」と「いま見ている対象」を、コンピューターが強く評価した言葉で比べます。機械的に抽出した語なので、公式な研究分野名とは限りません。</p>
+      </div>
+      <div class="detail-grid">
+        <article class="detail-card">
+          <h3>紹介文で重みが高かった語</h3>
+          <div id="termList" class="term-list"></div>
+        </article>
+        <article class="detail-card">
+          <h3 id="comparisonTitle">高度応用情報科学科との比較</h3>
+          <div id="comparisonList" class="comparison-list"></div>
+        </article>
+      </div>
+      <article class="ai-takeaway-card">
+        <div>
+          <p class="eyebrow">CONTINUE WITH YOUR AI</p>
+          <h3>AIで続きを考える</h3>
+          <p>いま見ている比較、または千葉工業大学16学科の概要を、あなたが普段使っているAIに添付できる資料へ変換します。</p>
+          <p class="ai-privacy-note">外部AIへ自動送信することはありません。資料はコピーするか、Markdownファイルとして保存できます。</p>
+        </div>
+        <button id="openAiExportButton" class="primary-button" type="button">AI用資料をつくる</button>
+      </article>
+    </section>
+
+    <section class="method-section section">
+      <div class="section-heading">
+        <p class="eyebrow">HOW IT WORKS</p>
+        <h2>30秒でわかる計算方法</h2>
+        <p>難しい式を知らなくても大丈夫です。コンピューターは、次の3段階で研究紹介文を比べています。</p>
+      </div>
+      <div class="method-grid">
+        <article class="method-item"><span>1</span>
+          <div>
+            <p class="method-name">特徴的な言葉を見つける</p>
+            <h3>TF-IDF</h3>
+            <p>その文章によく出て、ほかの文章では珍しい言葉を強く評価します。</p>
+          </div>
+        </article>
+        <article class="method-item"><span>2</span>
+          <div>
+            <p class="method-name">文章を直接比べる</p>
+            <h3>コサイン類似度</h3>
+            <p>言葉の重みの組み合わせを比べます。ランキングと数値にはこちらを使います。</p>
+          </div>
+        </article>
+        <article class="method-item"><span>3</span>
+          <div>
+            <p class="method-name">全体を地図にする</p>
+            <h3>PCA（主成分分析）</h3>
+            <p>たくさんの言葉の違いを2次元に縮めます。MAPは全体像を見るための近似です。</p>
+          </div>
+        </article>
+      </div>
+      <div class="method-summary">
+        <strong>MAPと文章類似度は役割が違います</strong>
+        <p>MAPは全体の傾向を探す入口、文章類似度と共通語は2つの対象を詳しく確かめる結果です。MAPの左右・上下そのものに、決まった研究分野の意味はありません。</p>
+      </div>
+    </section>
+
+    <section class="data-section section">
+      <div class="source-card">
+        <div>
+          <p class="eyebrow">DATA SOURCE</p>
+          <h2>情報源と分析データ</h2>
+          <p>紹介文の長さや詳しさは対象ごとに異なります。全件データ、品質バッジ、分析方法、結果から分かること・分からないことを確認できます。</p>
+        </div>
+        <a class="primary-button" href="sources.html">情報源を見る</a>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="aiExportDialog" class="ai-export-dialog" aria-labelledby="aiExportTitle">
+    <div class="ai-dialog-header">
+      <div>
+        <p class="eyebrow">TAKE IT WITH YOU</p>
+        <h2 id="aiExportTitle">AI用資料をつくる</h2>
+      </div>
+      <button id="closeAiExportButton" class="dialog-close" type="button" aria-label="閉じる">×</button>
+    </div>
+
+    <fieldset class="ai-export-scope">
+      <legend>どこまでAIに渡しますか？</legend>
+      <label>
+        <input type="radio" name="aiExportScope" value="comparison" checked>
+        <span><strong>いまの比較</strong><small>選択中の2対象、文章類似度、共通語をまとめます</small></span>
+      </label>
+      <label>
+        <input type="radio" name="aiExportScope" value="university">
+        <span><strong>16学科全体</strong><small>学科PCAと、16×16のコサイン類似度行列をまとめます</small></span>
+      </label>
+      <label>
+        <input type="radio" name="aiExportScope" value="teachers">
+        <span><strong>185教員・研究室全体</strong><small>教員PCAと、各教員の類似度上位5件をまとめます</small></span>
+      </label>
+    </fieldset>
+
+    <div class="ai-export-summary">
+      <span>作成する資料</span>
+      <strong id="aiExportSummary">いまの比較</strong>
+      <small id="aiExportSize">計算中</small>
+    </div>
+
+    <div class="ai-export-guide">
+      <strong>使い方</strong>
+      <ol>
+        <li>コピーした文章をAIの入力欄へ貼り付ける</li>
+        <li>または、保存したMarkdownファイルをAIへ添付する</li>
+        <li>資料末尾の質問例を使って対話を続ける</li>
+      </ol>
+    </div>
+
+    <details class="ai-export-preview">
+      <summary>AIへ渡す内容を確認</summary>
+      <pre id="aiExportPreview"></pre>
+    </details>
+
+    <p class="ai-external-note">生成AIの回答には誤りが含まれる場合があります。学科の最新情報は、資料に含まれる公式ページで確認してください。</p>
+    <p id="aiExportStatus" class="ai-export-status" role="status" aria-live="polite"></p>
+
+    <div class="ai-export-actions">
+      <button id="copyAiExportButton" class="primary-button" type="button">AI用資料をコピー</button>
+      <button id="downloadAiExportButton" class="secondary-button" type="button">Markdownを保存</button>
+    </div>
+  </dialog>
+
+  <footer>
+    <strong>千葉工業大学 高度応用情報科学科</strong>
+    <span>学科・研究分野マップ</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

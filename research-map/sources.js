@@ -20,7 +20,7 @@
     function renderSummary(teachers) {
         const departments = new Set(teachers.map((teacher) => teacher.department).filter(Boolean));
         const counts = teachers.reduce((summary, teacher) => {
-            const quality = teacher.cluster?.quality || "weak";
+            const quality = teacher.research_map?.quality || "weak";
             summary[quality] = (summary[quality] || 0) + 1;
             return summary;
         }, {});
@@ -34,7 +34,7 @@
     function renderTable(teachers) {
         $("#sourceDataHead").innerHTML = "<tr><th>学部</th><th>学科</th><th>教員</th><th>研究室・役職</th><th>品質</th><th>キーワード</th><th>公式ページ</th></tr>";
         $("#sourceDataBody").innerHTML = teachers.map((teacher) => {
-            const quality = teacher.cluster?.quality || "weak";
+            const quality = teacher.research_map?.quality || "weak";
             const keywords = normalizeKeywords(Array.isArray(teacher.keywords) && teacher.keywords.length ? teacher.keywords : teacher.source_text?.keywords_text || "");
             const url = teacher.profile_url || teacher.source_department_url || "";
             return `

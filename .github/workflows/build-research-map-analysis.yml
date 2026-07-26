@@ -1,4 +1,4 @@
-name: Build clustering analysis
+name: Build research map analysis
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  build-clustering-analysis:
+  build-research-map-analysis:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,17 +22,17 @@ jobs:
         with:
           node-version: 24
 
-      - name: Build clustering analysis data
-        run: node tools/build-clustering-data.js
+      - name: Build research map analysis data
+        run: node tools/build-research-map-data.js
 
       - name: Commit updated analysis data
         run: |
-          if git diff --quiet -- data/clustering-analysis.json; then
-            echo "clustering-analysis.json is up to date"
+          if git diff --quiet -- data/research-map-analysis.json; then
+            echo "research-map-analysis.json is up to date"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/clustering-analysis.json
-          git commit -m "Update clustering analysis data"
+          git add data/research-map-analysis.json
+          git commit -m "Update research map analysis data"
           git push
