@@ -7,12 +7,14 @@
   const resultActions = document.querySelector("#resultActions");
   const mysteryBox = document.querySelector("#mysteryBox");
   const boxMark = document.querySelector("#boxMark");
+  const boxHint = document.querySelector("#boxHint");
   const drawBall = document.querySelector("#drawBall");
   const drawText = document.querySelector("#drawText");
   const roundCount = document.querySelector("#roundCount");
   const status = document.querySelector("#status");
   const statusLabel = status.querySelector("span");
   const message = document.querySelector("#message");
+  const probabilityDetails = document.querySelector("#probabilityDetails");
   const probabilityA = document.querySelector("#probabilityA");
   const probabilityB = document.querySelector("#probabilityB");
   const probabilityBar = document.querySelector("#probabilityBar");
@@ -48,7 +50,8 @@
 
     const likelyBox = probability > 0.5 ? "A" : "B";
     const colorName = color === "blue" ? "青" : "赤";
-    return `${colorName}が出ました。今は箱${likelyBox}の可能性が高そうです`;
+    const feature = likelyBox === "A" ? "青が多い" : "赤が多い";
+    return `${colorName}が出ました。今は${feature}箱${likelyBox}の可能性が高そうです`;
   }
 
   function renderProbabilities() {
@@ -122,9 +125,11 @@
 
     status.classList.add(correct ? "correct" : "incorrect");
     statusLabel.textContent = correct ? "CORRECT" : "RESULT";
-    message.textContent = `${resultText}。使われていたのは箱${hiddenBox}でした`;
+    const feature = hiddenBox === "A" ? "青が多い" : "赤が多い";
+    message.textContent = `${resultText}。使われていたのは箱${hiddenBox}（${feature}箱）でした`;
     mysteryBox.classList.add("revealed");
     boxMark.textContent = hiddenBox;
+    boxHint.textContent = `${feature}箱`;
     drawButton.disabled = true;
     declaration.disabled = true;
     resultActions.hidden = false;
@@ -137,15 +142,17 @@
 
     mysteryBox.classList.remove("revealed");
     boxMark.textContent = "?";
+    boxHint.textContent = "青が多い？ 赤が多い？";
     drawBall.className = "draw-placeholder";
     drawBall.textContent = "?";
     drawText.textContent = "まだ球を引いていません";
     status.classList.remove("correct", "incorrect");
     statusLabel.textContent = "START";
-    message.textContent = "最初はAとBが同じくらいありそうです";
+    message.textContent = "最初は青が多い箱Aと赤が多い箱Bが同じくらいありそうです";
     drawButton.disabled = false;
     declaration.disabled = true;
     resultActions.hidden = true;
+    probabilityDetails.open = false;
 
     renderHistory();
     renderProbabilities();

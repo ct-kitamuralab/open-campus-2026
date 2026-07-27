@@ -61,14 +61,18 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 
 .box-rules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; transform: rotate(1deg); }
 .box-rules article { padding: 24px 20px; background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
-.box-name { display: grid; place-items: center; width: 54px; height: 54px; margin: 0 auto 20px; color: white; background: var(--navy); border-radius: 12px; font: italic 32px Georgia, serif; }
+.box-name { display: grid; place-items: center; gap: 1px; width: 104px; min-height: 64px; margin: 0 auto 20px; padding: 8px; color: white; border-radius: 12px; line-height: 1.2; }
+.box-name strong { font-size: 21px; }
+.box-name span { color: white; font-size: 11px; font-weight: 900; }
+.box-name-a { background: var(--blue); }
+.box-name-b { background: var(--red); }
 .ball-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; min-height: 42px; }
 .ball { display: block; width: 34px; height: 34px; border: 4px solid white; border-radius: 50%; box-shadow: 0 3px 8px rgba(19, 33, 59, .22); }
 .ball.blue { background: var(--blue); }
 .ball.red { background: var(--red); }
 .box-rules p { display: flex; justify-content: center; gap: 16px; margin: 18px 0 0; font-size: 14px; }
-.box-rules strong { color: var(--blue); }
-.box-rules span { color: var(--red); font-weight: 900; }
+.box-rules p strong { color: var(--blue); }
+.box-rules p span { color: var(--red); font-weight: 900; }
 
 .game { padding: 88px max(7vw, 24px); }
 .game-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; max-width: 1180px; margin-bottom: 32px; }
@@ -124,7 +128,11 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 .status strong { font-size: clamp(17px, 2vw, 22px); line-height: 1.5; }
 .status.correct { background: #176447; }
 .status.incorrect { background: #7d2d32; }
-.probabilities { margin-top: 28px; }
+.probability-details { margin-top: 24px; border: 1px solid var(--line); border-radius: 10px; }
+.probability-details summary { padding: 13px 16px; color: var(--navy); font-weight: 900; cursor: pointer; }
+.probability-details summary::marker { color: var(--orange); }
+.probability-details[open] summary { border-bottom: 1px solid var(--line); }
+.probabilities { padding: 20px 16px; }
 .probability-labels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .probability-labels p { margin: 0; }
 .probability-labels p:last-child { text-align: right; }
@@ -151,7 +159,10 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 .declaration legend { margin-bottom: 12px; color: var(--ink); font-weight: 900; }
 .declaration div { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 .declaration button { background: var(--navy); box-shadow: 0 7px 0 #09172f; }
-.declaration button:hover:not(:disabled) { box-shadow: 0 9px 0 #09172f; }
+.declaration button[data-guess="A"] { background: var(--blue); box-shadow: 0 7px 0 #17518f; }
+.declaration button[data-guess="B"] { background: var(--red); box-shadow: 0 7px 0 #a72e2e; }
+.declaration button[data-guess="A"]:hover:not(:disabled) { box-shadow: 0 9px 0 #17518f; }
+.declaration button[data-guess="B"]:hover:not(:disabled) { box-shadow: 0 9px 0 #a72e2e; }
 .declaration button:disabled { opacity: .38; cursor: not-allowed; }
 .result-actions { margin-top: 26px; }
 .result-actions button { width: 100%; }

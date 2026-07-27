@@ -34,14 +34,14 @@
 
       <div class="box-rules" aria-label="箱Aと箱Bの中身">
         <article>
-          <div class="box-name">A</div>
+          <div class="box-name box-name-a"><strong>箱A</strong><span>青が多い</span></div>
           <div class="ball-row" aria-label="青3個、赤1個">
             <i class="ball blue"></i><i class="ball blue"></i><i class="ball blue"></i><i class="ball red"></i>
           </div>
           <p><strong>青 3</strong><span>赤 1</span></p>
         </article>
         <article>
-          <div class="box-name">B</div>
+          <div class="box-name box-name-b"><strong>箱B</strong><span>赤が多い</span></div>
           <div class="ball-row" aria-label="青1個、赤3個">
             <i class="ball blue"></i><i class="ball red"></i><i class="ball red"></i><i class="ball red"></i>
           </div>
@@ -63,7 +63,7 @@
         <div class="observation-panel">
           <div class="mystery-box" id="mysteryBox" aria-label="中身が隠された箱">
             <span id="boxMark">?</span>
-            <small>どちらの箱？</small>
+            <small id="boxHint">青が多い？ 赤が多い？</small>
           </div>
 
           <div class="draw-result" id="drawResult" aria-live="polite">
@@ -81,19 +81,22 @@
         <div class="inference-panel">
           <div class="status" id="status" aria-live="polite">
             <span>START</span>
-            <strong id="message">最初はAとBが同じくらいありそうです</strong>
+            <strong id="message">最初は青が多い箱Aと赤が多い箱Bが同じくらいありそうです</strong>
           </div>
 
-          <div class="probabilities" aria-label="現在の推定確率">
-            <div class="probability-labels">
-              <p><span>箱Aの可能性</span><strong id="probabilityA">50.0%</strong></p>
-              <p><span>箱Bの可能性</span><strong id="probabilityB">50.0%</strong></p>
+          <details class="probability-details" id="probabilityDetails">
+            <summary>確率の更新を見る</summary>
+            <div class="probabilities" aria-label="現在の推定確率">
+              <div class="probability-labels">
+                <p><span>箱A（青が多い）</span><strong id="probabilityA">50.0%</strong></p>
+                <p><span>箱B（赤が多い）</span><strong id="probabilityB">50.0%</strong></p>
+              </div>
+              <div class="probability-bar" role="img" id="probabilityBar" aria-label="箱A 50.0%、箱B 50.0%">
+                <span class="bar-a" id="barA"></span>
+                <span class="bar-b" id="barB"></span>
+              </div>
             </div>
-            <div class="probability-bar" role="img" id="probabilityBar" aria-label="箱A 50.0%、箱B 50.0%">
-              <span class="bar-a" id="barA"></span>
-              <span class="bar-b" id="barB"></span>
-            </div>
-          </div>
+          </details>
 
           <div class="history-wrap">
             <div class="history-heading">
@@ -108,8 +111,8 @@
           <fieldset class="declaration" id="declaration" disabled>
             <legend>もう分かった？ 使われている箱を宣言しよう</legend>
             <div>
-              <button type="button" data-guess="A">箱Aだと思う</button>
-              <button type="button" data-guess="B">箱Bだと思う</button>
+              <button type="button" data-guess="A">箱A（青が多い）</button>
+              <button type="button" data-guess="B">箱B（赤が多い）</button>
             </div>
           </fieldset>
 
