@@ -68,7 +68,13 @@
       ? '<span>0%</span><i class="legend-gradient"></i><span>20%以上</span><span class="legend-box checked"></span><span>調査済み</span>'
       : '<span>未調査</span><span class="legend-box checked"></span><span>調査済み</span>';
 
+    renderConditions();
     renderProgress();
+  }
+
+  function renderConditions() {
+    const { signal, noise } = params();
+    $("#conditionModel").textContent = `最大反応 ${signal} / ノイズ σ=${noise}`;
   }
 
   function renderProgress(showResult = false) {
@@ -208,19 +214,28 @@
 
   function renderStatus(reading) {
     $("#clickCount").textContent = state.clicks;
+    $("#mobileClickCount").textContent = state.clicks;
     if (typeof reading !== "number") {
       $("#readingLabel").textContent = "まだ観測していません";
       $("#readingText").textContent = "地面を1マス選んで、ロッドをかざしてみよう。";
       $("#meterFill").style.width = "0";
+      $("#mobileReadingLabel").textContent = "まだ観測していません";
+      $("#mobileReadingText").textContent = "地面を1マス選んで、ロッドをかざしてみよう。";
+      $("#mobileMeterFill").style.width = "0";
     } else {
       const strength = Math.min(100, Math.round(reading / params().signal * 100));
-      $("#meterFill").style.width = `${strength}%`;
-      $("#readingLabel").textContent = `${reading.toFixed(2)} / ${params().signal}`;
-      $("#readingText").textContent =
+      const readingLabel = `${reading.toFixed(2)} / ${params().signal}`;
+      const readingText =
         strength >= 70 ? "ロッドが大きく揺れた！ 宝箱はすぐ近くかも。" :
-        strength >= 40 ? "ロッドが反応している。この辺りは怪しそう。" :
-        strength >= 15 ? "かすかな反応。宝箱は少し離れているかも。" :
-        "ロッドはほぼ動かない。別の場所へ行ってみよう。";
+          strength >= 40 ? "ロッドが反応している。この辺りは怪しそう。" :
+            strength >= 15 ? "かすかな反応。宝箱は少し離れているかも。" :
+              "ロッドはほぼ動かない。別の場所へ行ってみよう。";
+      $("#meterFill").style.width = `${strength}%`;
+      $("#readingLabel").textContent = readingLabel;
+      $("#readingText").textContent = readingText;
+      $("#mobileMeterFill").style.width = `${strength}%`;
+      $("#mobileReadingLabel").textContent = readingLabel;
+      $("#mobileReadingText").textContent = readingText;
     }
 
     const log = $("#historyLog");
@@ -243,9 +258,9 @@
       const percent = maximum * 100;
       const confidence =
         percent >= 20 ? "かなり有力です" :
-        percent >= 10 ? "有力になってきました" :
-        percent >= 5 ? "まだ候補が分散しています" :
-        "現在トップですが、確率はまだ低いです";
+          percent >= 10 ? "有力になってきました" :
+            percent >= 5 ? "まだ候補が分散しています" :
+              "現在トップですが、確率はまだ低いです";
       $("#tipText").textContent = `✦ は現在の1位（推定確率 ${percent.toFixed(1)}%）。${confidence}。`;
     }
   }

@@ -95,27 +95,6 @@
         </div>
       </div>
 
-      <div class="lesson-grid">
-        <article class="lesson-card">
-          <span class="lesson-number">1</span>
-          <div class="lesson-icon prior-icon">?</div>
-          <h3>まず予想する</h3>
-          <p>最初は手がかりがないので、どのマスも同じくらい怪しいと考えます。これが<strong>事前確率</strong>です。</p>
-        </article>
-        <article class="lesson-card">
-          <span class="lesson-number">2</span>
-          <div class="lesson-icon sensor-icon">Y</div>
-          <h3>手がかりを得る</h3>
-          <p>地面にロッド型センサーをかざし、宝箱の信号を測ります。測定値にはノイズも含まれます。これが<strong>観測</strong>です。</p>
-        </article>
-        <article class="lesson-card">
-          <span class="lesson-number">3</span>
-          <div class="lesson-icon posterior-icon">◎</div>
-          <h3>予想を更新する</h3>
-          <p>「この反応なら、どこにある可能性が高い？」を計算し直します。これが<strong>事後確率</strong>です。</p>
-        </article>
-      </div>
-
       <div class="formula-card">
         <div>
           <p class="eyebrow">BAYES' THEOREM</p>
@@ -146,6 +125,11 @@
           <span>MISSION</span>
           <p><strong>宝箱の発信機を探せ。</strong> ロッド型センサーの値は、近いほど強くなる傾向があります。ただし測定ノイズがあるため、1回の反応だけでは場所を断定できません。</p>
         </div>
+        <div class="observation-conditions" aria-live="polite">
+          <span>観測条件</span>
+          <strong id="conditionModel"></strong>
+          <small>予想マップも同じ条件で計算</small>
+        </div>
         <div class="game-topbar">
           <div id="roundProgress" class="round-progress" aria-label="進行状況"></div>
           <label class="difficulty-label">
@@ -161,13 +145,22 @@
         <div id="gamePlay" class="game-play">
           <div class="board-panel">
             <div class="board-caption">
-              <div>
+              <div class="board-title">
                 <span id="roundBadge" class="status-badge plain">ヒントなし</span>
                 <h3 id="roundTitle">センサー反応だけで探そう</h3>
               </div>
+              <span class="mobile-click-count">調査 <b id="mobileClickCount">0</b>回</span>
               <button id="resetButton" class="text-button" type="button">↻ 最初から</button>
             </div>
             <p id="roundInstruction" class="instruction">怪しいマスをクリック。色は変わらないので、反応の強さを覚えて推理しよう。</p>
+            <div class="mobile-sensor-card" aria-live="polite">
+              <div class="sensor-heading">
+                <span>ロッド型センサーの反応</span>
+                <strong id="mobileReadingLabel">まだ観測していません</strong>
+              </div>
+              <div class="meter"><i id="mobileMeterFill"></i></div>
+              <p id="mobileReadingText">地面を1マス選んで、ロッドをかざしてみよう。</p>
+            </div>
             <div id="grid" class="search-grid" role="grid" aria-label="宝箱探索グリッド"></div>
             <div class="legend" id="legend">
               <span>未調査</span>
@@ -237,6 +230,88 @@
           <button id="playAgainButton" class="primary-button" type="button">もう一度冒険する <span>↻</span></button>
         </div>
       </div>
+    </section>
+
+    <section class="bayes-column section" aria-labelledby="bayes-column-title">
+      <div class="bayes-column-heading">
+        <p class="eyebrow">HOW IT WORKS</p>
+        <h2 id="bayes-column-title">なぜ、測るたびに宝の場所が絞られるの？</h2>
+        <p>
+          このゲームは、1回のセンサー反応だけで宝箱の場所を決めません。測るたびに、各マスに宝箱がある確率を計算し直しています。この予想の更新が、ベイズ推論です。
+        </p>
+      </div>
+
+      <details class="bayes-details">
+        <summary>確率が更新される流れを見る</summary>
+        <div class="bayes-step-grid">
+          <article class="bayes-step-card">
+            <span class="bayes-step-number">1</span>
+            <h3>最初は、全部のマスが同じくらい怪しい</h3>
+            <p>まだ何も測っていないときは手がかりがありません。たとえば4マスなら、宝箱がある確率はA・B・C・Dすべて25%から始まります。</p>
+            <p class="bayes-formula">A 25%　B 25%　C 25%　D 25%</p>
+          </article>
+
+          <article class="bayes-step-card">
+            <span class="bayes-step-number">2</span>
+            <h3>A地点でセンサーを使う</h3>
+            <p>宝箱に近いほど、センサーは平均的に大きな値を返します。ただし地面の状態や機械の揺らぎを表す測定ノイズが加わるので、同じ場所で測っても毎回同じ値にはなりません。</p>
+          </article>
+
+          <article class="bayes-step-card">
+            <span class="bayes-step-number">3</span>
+            <h3>実際の値と、各マスの場合の予想を比べる</h3>
+            <p>たとえばA地点でセンサー値「5」が出たとします。ゲームは「宝箱がAにあるなら5は出やすいか」「Bならどうか」を、ノイズも含めて各マスで計算します。</p>
+            <p>実際の値が出やすいマスほど、今回の観測と相性がよいと判断されます。この出やすさを<strong>尤度</strong>と呼びます。</p>
+          </article>
+
+          <article class="bayes-step-card">
+            <span class="bayes-step-number">4</span>
+            <h3>これまでの予想に、今回の手がかりを反映する</h3>
+            <p>各マスについて、これまでの確率に今回の尤度を掛けます。その後、全マスの合計が100%になるように調整します。</p>
+            <p class="bayes-formula">新しい確率 ∝ これまでの確率 × 今回の尤度</p>
+          </article>
+        </div>
+
+        <div class="bayes-column-detail">
+          <article class="bayes-example-card">
+            <h3>4マスなら、こんなふうに更新されます</h3>
+            <p>最初は全マス25%です。A地点で得たセンサー値が、「宝箱がBにある場合に特に出やすい値」だったとします。</p>
+            <div class="bayes-probabilities" aria-label="確率更新の例">
+              <div><strong>A</strong><span>25%</span><i aria-hidden="true">→</i><b>5%</b></div>
+              <div><strong>B</strong><span>25%</span><i aria-hidden="true">→</i><b>70%</b></div>
+              <div><strong>C</strong><span>25%</span><i aria-hidden="true">→</i><b>15%</b></div>
+              <div><strong>D</strong><span>25%</span><i aria-hidden="true">→</i><b>10%</b></div>
+            </div>
+            <p class="bayes-note">※数値は仕組みを説明する例です。実際のゲームでは、センサー値、各マスまでの距離、設定されたノイズ量から毎回計算します。</p>
+          </article>
+
+          <article class="bayes-noise-card">
+            <p class="bayes-noise-label">IN THIS GAME</p>
+            <h3>OC宝探しのセンサーには、どんなノイズがある？</h3>
+            <p>このゲームの反応値は、宝箱までの距離から予想される反応に、平均0のランダムな揺らぎを加えて作られます。揺らぎは正規分布に従うため、たいていは小さく、ときどき大きくぶれます。</p>
+            <p class="bayes-formula">反応値 = 距離から予想される反応 + ランダムな揺らぎ</p>
+            <dl class="bayes-noise-levels">
+              <div>
+                <dt>入門</dt>
+                <dd>ノイズ 0.65</dd>
+              </div>
+              <div>
+                <dt>標準</dt>
+                <dd>ノイズ 1.35</dd>
+              </div>
+              <div>
+                <dt>挑戦</dt>
+                <dd>ノイズ 2.1</dd>
+              </div>
+            </dl>
+            <p>難易度が上がるほどノイズが大きくなり、1回の測定だけでは場所を判断しにくくなります。ベイズ推論はこのノイズ量も含めて尤度を計算するため、観測を重ねるほど複数の手がかりに合うマスへ確率が集まりやすくなります。
+            </p>
+          </article>
+        </div>
+      </details>
+
+      <p class="bayes-column-summary">
+        <strong>つまり：</strong>センサーで新しい手がかりを得るたびに、「今までの予想」を「今回の反応の出やすさ」で修正し、宝箱がありそうなマスへ確率を少しずつ再分配しています。</p>
     </section>
 
     <section class="discussion section">

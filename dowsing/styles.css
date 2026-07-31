@@ -457,68 +457,6 @@ h1 em {
   color: white;
 }
 
-.lesson-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
-}
-
-.lesson-card {
-  position: relative;
-  min-height: 340px;
-  padding: 35px;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-}
-
-.lesson-number {
-  position: absolute;
-  right: 22px;
-  top: 14px;
-  color: #dce1db;
-  font: italic 58px Georgia, serif;
-}
-
-.lesson-icon {
-  width: 78px;
-  height: 78px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 26px;
-  color: white;
-  border-radius: 48% 52% 50% 45%;
-  font: 700 35px Georgia, serif;
-}
-
-.prior-icon {
-  background: var(--navy);
-}
-
-.sensor-icon {
-  background: var(--orange);
-}
-
-.posterior-icon {
-  color: var(--navy);
-  background: var(--lime);
-}
-
-.lesson-card h3 {
-  margin: 0 0 12px;
-  font-size: 22px;
-}
-
-.lesson-card p {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.lesson-card strong {
-  color: var(--ink);
-  background: linear-gradient(transparent 60%, rgba(223, 242, 58, .8) 60%);
-}
-
 .formula-card {
   display: grid;
   grid-template-columns: 1fr 1.25fr;
@@ -625,6 +563,30 @@ h1 em {
 
 .mission-note strong {
   color: white;
+}
+
+.observation-conditions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 30px;
+  color: var(--muted);
+  background: #f7f8f3;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+}
+
+.observation-conditions>span {
+  color: var(--navy);
+  font-weight: 900;
+}
+
+.observation-conditions strong {
+  color: var(--orange-dark);
+}
+
+.observation-conditions small {
+  margin-left: auto;
 }
 
 .game-topbar {
@@ -778,6 +740,11 @@ select {
 .board-caption h3 {
   margin: 10px 0 0;
   font-size: 24px;
+}
+
+.mobile-click-count,
+.mobile-sensor-card {
+  display: none;
 }
 
 .status-badge {
@@ -1167,6 +1134,216 @@ select {
   color: white;
 }
 
+.bayes-column {
+  background:
+    radial-gradient(circle at 90% 8%, rgba(223, 242, 58, .26), transparent 24%),
+    linear-gradient(135deg, #f8f7ee, #edf7f4);
+}
+
+.bayes-column-heading {
+  max-width: 780px;
+  margin-bottom: 48px;
+}
+
+.bayes-column-heading h2 {
+  margin: 0 0 20px;
+  font-size: clamp(34px, 4vw, 55px);
+  line-height: 1.35;
+  letter-spacing: -.03em;
+}
+
+.bayes-column-heading>p:last-child {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.bayes-step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.bayes-details {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.bayes-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 900;
+  list-style: none;
+}
+
+.bayes-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.bayes-details summary::after {
+  content: "+";
+  color: var(--orange);
+  font-size: 24px;
+  font-weight: 400;
+}
+
+.bayes-details[open] summary::after {
+  content: "−";
+}
+
+.bayes-details .bayes-step-grid {
+  padding-bottom: 18px;
+}
+
+.bayes-step-card,
+.bayes-example-card,
+.bayes-noise-card {
+  padding: 32px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.bayes-step-number {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  margin-bottom: 16px;
+  color: var(--navy);
+  background: var(--lime);
+  border-radius: 50%;
+  font-weight: 900;
+}
+
+.bayes-step-card h3,
+.bayes-example-card h3,
+.bayes-noise-card h3 {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.5;
+}
+
+.bayes-step-card p,
+.bayes-example-card p,
+.bayes-noise-card p {
+  margin: 14px 0 0;
+}
+
+.bayes-formula {
+  padding: 13px 16px;
+  color: var(--navy);
+  background: #eef7f5;
+  border-left: 4px solid var(--cyan);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.6;
+}
+
+.bayes-column-detail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.bayes-example-card,
+.bayes-noise-card {
+  min-width: 0;
+}
+
+.bayes-probabilities {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.bayes-probabilities div {
+  display: grid;
+  justify-items: center;
+  padding: 14px 8px;
+  background: var(--paper);
+  border-radius: 5px;
+}
+
+.bayes-probabilities strong {
+  font-size: 19px;
+}
+
+.bayes-probabilities span,
+.bayes-probabilities i {
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+}
+
+.bayes-probabilities b {
+  color: var(--orange);
+  font-size: 21px;
+}
+
+.bayes-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.bayes-noise-card {
+  color: white;
+  background: var(--navy);
+  border-color: var(--navy);
+}
+
+.bayes-noise-label {
+  margin: 0 0 10px !important;
+  color: var(--lime);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .16em;
+}
+
+.bayes-noise-card .bayes-formula {
+  color: white;
+  background: rgba(255, 255, 255, .1);
+  border-left-color: var(--lime);
+}
+
+.bayes-noise-levels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 20px 0 0;
+}
+
+.bayes-noise-levels div {
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, .2);
+}
+
+.bayes-noise-levels dt {
+  color: var(--lime);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.bayes-noise-levels dd {
+  margin: 3px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.bayes-column-summary {
+  margin: 18px 0 0;
+  padding: 20px 24px;
+  background: var(--lime);
+  border-radius: 8px;
+  font-weight: 700;
+}
+
 .question-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1249,14 +1426,11 @@ footer strong {
   }
 
   .story-card,
-  .lesson-grid,
   .question-grid,
-  .connection-grid {
+  .connection-grid,
+  .bayes-step-grid,
+  .bayes-column-detail {
     grid-template-columns: 1fr;
-  }
-
-  .lesson-card {
-    min-height: auto;
   }
 
   .formula-card {
@@ -1352,6 +1526,90 @@ footer strong {
     padding: 80px 18px;
   }
 
+  .game-section {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .game-heading {
+    margin-bottom: 28px;
+  }
+
+  .game-heading>p {
+    display: none;
+  }
+
+  .game-shell {
+    border-radius: 8px;
+  }
+
+  .mission-note {
+    display: none;
+  }
+
+  .observation-conditions {
+    gap: 6px 10px;
+    flex-wrap: wrap;
+    padding: 9px 14px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .observation-conditions small {
+    width: 100%;
+    margin-left: 0;
+    color: var(--muted);
+  }
+
+  .game-topbar {
+    flex-direction: row;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .round-progress {
+    min-width: 0;
+  }
+
+  .progress-line {
+    min-width: 8px;
+    margin: 0 4px;
+  }
+
+  .difficulty-label {
+    gap: 5px;
+    flex: none;
+    font-size: 10px;
+  }
+
+  .difficulty-label select {
+    max-width: 112px;
+    padding: 6px 22px 6px 7px;
+    font-size: 10px;
+  }
+
+  .bayes-column-heading {
+    margin-bottom: 34px;
+  }
+
+  .bayes-step-card,
+  .bayes-example-card,
+  .bayes-noise-card {
+    padding: 26px 20px;
+  }
+
+  .bayes-probabilities {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bayes-noise-levels {
+    grid-template-columns: 1fr;
+  }
+
+  .bayes-column-summary {
+    padding: 18px 20px;
+  }
+
   .formula-card {
     padding: 30px 20px;
   }
@@ -1388,12 +1646,104 @@ footer strong {
   }
 
   .board-panel {
-    padding: 20px 12px;
+    padding: 12px;
+  }
+
+  .board-caption {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .board-title {
+    display: contents;
+  }
+
+  .board-caption h3 {
+    display: none;
+  }
+
+  .mobile-click-count {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    text-align: right;
+  }
+
+  .mobile-click-count b {
+    color: var(--navy);
+    font-size: 15px;
+  }
+
+  .board-caption .text-button {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    color: transparent;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+
+  .board-caption .text-button::before {
+    content: "↻";
+    color: var(--muted);
+    font-size: 17px;
+  }
+
+  .instruction {
+    display: none;
+  }
+
+  .mobile-sensor-card {
+    position: sticky;
+    top: 70px;
+    z-index: 4;
+    display: block;
+    margin: 10px -1px 12px;
+    padding: 10px 12px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: 0 5px 14px rgba(20, 33, 61, .08);
+  }
+
+  .mobile-sensor-card .meter {
+    height: 8px;
+    margin-top: 7px;
+  }
+
+  .mobile-sensor-card p {
+    overflow: hidden;
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .game-sidebar {
     grid-template-columns: 1fr;
     padding: 18px;
+  }
+
+  .counter-card,
+  .sensor-card {
+    display: none;
+  }
+
+  .search-grid {
+    width: min(100%, 360px);
+  }
+
+  .legend {
+    margin-top: 9px;
+  }
+
+  .legend-gradient {
+    width: 95px;
   }
 
   .mini-log {
