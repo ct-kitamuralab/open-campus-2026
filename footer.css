@@ -1,0 +1,33 @@
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 34px 7vw;
+  color: #aeb9cc;
+  background: #0e1d37;
+  font-size: 13px;
+}
+
+footer strong {
+  color: white;
+  font-size: inherit;
+}
+
+footer small {
+  margin-left: 12px;
+  color: #7f8da5;
+  font-size: 10px;
+}
+
+@media (max-width: 600px) {
+  footer {
+    display: grid;
+    gap: 6px;
+    text-align: center;
+  }
+
+  footer small {
+    display: block;
+    margin: 4px 0 0;
+  }
+}
