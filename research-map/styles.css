@@ -1488,20 +1488,6 @@ body.map-expanded {
   overflow: hidden;
 }
 
-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 34px 7vw;
-  color: #aeb9cc;
-  background: #0e1d37;
-  font-size: 13px;
-}
-
-footer strong {
-  color: white;
-}
-
 @media (max-width: 1180px) {
   .control-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1718,11 +1704,6 @@ footer strong {
     width: 100%;
   }
 
-  footer {
-    display: grid;
-    gap: 6px;
-    text-align: center;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

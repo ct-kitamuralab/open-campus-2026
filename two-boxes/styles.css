@@ -174,9 +174,6 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 .explanation-grid h3 { margin: 10px 0 8px; }
 .explanation-grid p { margin: 0; color: var(--muted); font-weight: 700; }
 
-footer { display: flex; align-items: center; justify-content: space-between; padding: 34px 7vw; color: #aeb9cc; background: #0e1d37; font-size: 13px; }
-footer strong { color: white; }
-
 @media (max-width: 900px) {
   .hero, .game-grid { grid-template-columns: 1fr; }
   .box-rules { max-width: 560px; transform: none; }
@@ -201,7 +198,6 @@ footer strong { color: white; }
   .draw-result { min-height: 74px; }
   .draw-button { min-height: 58px; }
   .declaration div { grid-template-columns: 1fr; }
-  footer { display: grid; gap: 6px; text-align: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {

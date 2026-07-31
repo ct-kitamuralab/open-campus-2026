@@ -1372,21 +1372,6 @@ select {
   font-weight: 700;
 }
 
-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 36px 7vw;
-  color: var(--muted);
-  background: #0e1d37;
-  font-size: 12px;
-}
-
-footer strong {
-  color: white;
-  font-size: 16px;
-}
-
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1740,10 +1725,6 @@ footer strong {
     padding: 35px 20px;
   }
 
-  footer {
-    display: block;
-    text-align: center;
-  }
 }
 
 .sensor-model-summary {

@@ -2,6 +2,7 @@ footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
   padding: 34px 7vw;
   color: #aeb9cc;
   background: #0e1d37;
@@ -22,12 +23,15 @@ footer small {
 @media (max-width: 600px) {
   footer {
     display: grid;
-    gap: 6px;
+    justify-items: center;
+    gap: 8px;
+    padding: 28px 20px;
     text-align: center;
+    line-height: 1.5;
   }
 
   footer small {
     display: block;
-    margin: 4px 0 0;
+    margin: 6px 0 0;
   }
 }
