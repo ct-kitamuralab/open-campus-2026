@@ -27,8 +27,8 @@
         <p class="eyebrow">BAYES INFERENCE GAME</p>
         <h1>推理ゲーム<br><em>2つの箱</em></h1>
         <p class="lead">
-          使われているのは箱Aと箱Bのどちらか一方。球を何度か引き、色というデータから箱を推理してください。
-          引いた球は毎回箱に戻すので、同じ条件で何度でも観測できます。
+          箱Aには青3個・赤1個、箱Bには青1個・赤3個が入っています。目の前にあるのはAかBのどちらか一方ですが、見た目では区別できません。<br>
+          球を取り出して色を確かめ、箱に戻す操作は何度でもできます。どちらの箱か確信を持てたら、あなたの答えを宣言してください。
         </p>
       </div>
 
@@ -61,20 +61,28 @@
 
       <div class="game-grid">
         <div class="observation-panel">
-          <div class="mystery-box" id="mysteryBox" aria-label="中身が隠された箱">
-            <span id="boxMark">?</span>
-            <small id="boxHint">青が多い？ 赤が多い？</small>
-          </div>
-
-          <div class="draw-result" id="drawResult" aria-live="polite">
-            <span class="draw-placeholder" id="drawBall">?</span>
-            <div>
-              <small>今回の観測</small>
-              <strong id="drawText">まだ球を引いていません</strong>
+          <p class="draw-intro">箱の中身は見えません。箱から取り出した球の色を観測して推理します。</p>
+          <div class="draw-station" id="drawStation">
+            <div class="mystery-box" aria-label="中身が見えない抽選箱">
+              <div class="box-top" aria-hidden="true">
+                <span class="box-hole"></span>
+                <span class="box-draw-ball"></span>
+              </div>
+              <div class="box-body" aria-hidden="true">
+                <span class="box-question">?</span>
+              </div>
+            </div>
+            <div class="draw-controls">
+              <div class="draw-result" id="drawResult" aria-live="polite">
+                <span class="draw-placeholder" id="drawBall"></span>
+                <div>
+                  <small>今回の観測</small>
+                  <strong id="drawText">まだ球を引いていません</strong>
+                </div>
+              </div>
+              <button type="button" class="draw-button" id="drawButton">球を1個引く</button>
             </div>
           </div>
-
-          <button type="button" class="draw-button" id="drawButton">球を1個引く</button>
           <p class="return-note">引いた球は確認した後、箱に戻して混ぜます。</p>
         </div>
 
@@ -88,8 +96,8 @@
             <summary>確率の更新を見る</summary>
             <div class="probabilities" aria-label="現在の推定確率">
               <div class="probability-labels">
-                <p><span>箱A（青が多い）</span><strong id="probabilityA">50.0%</strong></p>
-                <p><span>箱B（赤が多い）</span><strong id="probabilityB">50.0%</strong></p>
+                <p><span>箱A（🔵🔵🔵🔴）</span><strong id="probabilityA">50.0%</strong></p>
+                <p><span>箱B（🔵🔴🔴🔴）</span><strong id="probabilityB">50.0%</strong></p>
               </div>
               <div class="probability-bar" role="img" id="probabilityBar" aria-label="箱A 50.0%、箱B 50.0%">
                 <span class="bar-a" id="barA"></span>
@@ -111,8 +119,8 @@
           <fieldset class="declaration" id="declaration" disabled>
             <legend>もう分かった？ 使われている箱を宣言しよう</legend>
             <div>
-              <button type="button" data-guess="A">箱A（青が多い）</button>
-              <button type="button" data-guess="B">箱B（赤が多い）</button>
+              <button type="button" data-guess="A" aria-label="箱A、青3個と赤1個">箱A（🔵🔵🔵🔴）</button>
+              <button type="button" data-guess="B" aria-label="箱B、青1個と赤3個">箱B（🔵🔴🔴🔴）</button>
             </div>
           </fieldset>
 
