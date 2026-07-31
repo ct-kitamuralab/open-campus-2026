@@ -75,10 +75,10 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 .box-rules p span { color: var(--red); font-weight: 900; }
 
 .game { padding: 88px max(7vw, 24px); }
-.game-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; max-width: 1180px; margin-bottom: 32px; }
+.game-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; max-width: 1180px; margin: 0 auto 32px; }
 .game-heading h2, .explanation h2 { margin: 0; font-size: clamp(30px, 4vw, 50px); line-height: 1.3; letter-spacing: -.03em; }
 .round-count { flex: none; margin: 0; padding: 8px 16px; color: var(--navy); background: white; border: 2px solid var(--navy); border-radius: 999px; font-weight: 900; }
-.game-grid { display: grid; grid-template-columns: minmax(280px, .7fr) minmax(480px, 1.3fr); gap: 24px; max-width: 1180px; }
+.game-grid { display: grid; grid-template-columns: minmax(280px, .7fr) minmax(480px, 1.3fr); gap: 24px; max-width: 1180px; margin: 0 auto; }
 .observation-panel, .inference-panel { padding: 30px; background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 14px 42px rgba(19, 33, 59, .08); }
 
 .mystery-box {
@@ -99,13 +99,28 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 .mystery-box small { color: #c8d1e2; font-weight: 900; }
 .mystery-box.revealed { color: var(--navy); background: linear-gradient(155deg, #f5f985, var(--lime)); border-color: #becd20; transform: translateY(-5px); }
 .mystery-box.revealed small { color: var(--navy); }
-.draw-result { display: flex; align-items: center; gap: 16px; min-height: 82px; padding: 14px 16px; background: var(--paper); border-radius: 12px; }
-.draw-result small { display: block; color: var(--muted); font-size: 12px; font-weight: 900; }
-.draw-result strong { display: block; line-height: 1.4; }
-.draw-placeholder { display: grid; place-items: center; flex: none; width: 54px; height: 54px; color: var(--muted); background: white; border: 3px dashed #b9c1c1; border-radius: 50%; font-weight: 900; }
-.draw-placeholder.blue, .draw-placeholder.red { color: white; border: 4px solid white; box-shadow: 0 3px 10px rgba(19, 33, 59, .24); }
+.draw-intro { margin: 0 0 16px; color: var(--muted); font-size: 14px; font-weight: 800; text-align: center; }
+.draw-station { display: grid; justify-items: center; gap: 14px; }
+.lottery-machine { position: relative; width: 215px; height: 190px; }
+.lottery-machine::after { content: ""; position: absolute; right: 2px; bottom: 4px; width: 114px; height: 34px; background: linear-gradient(160deg, #fffdf6, #ead7ad); border: 5px solid #c99556; border-radius: 4px 18px 18px 4px; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .7), 0 5px 0 #a66f39; }
+.lottery-drum { position: absolute; top: 2px; left: 27px; z-index: 2; width: 139px; height: 139px; padding: 10px; background: linear-gradient(135deg, #f6c984, #c8833e); clip-path: polygon(29% 0, 71% 0, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0 71%, 0 29%); filter: drop-shadow(0 8px 0 #965d29) drop-shadow(0 12px 14px rgba(19, 33, 59, .2)); }
+.drum-face { display: grid; grid-template-columns: repeat(3, 27px); gap: 8px; place-content: center; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255, 245, 216, .86), rgba(213, 144, 69, .36)); clip-path: inherit; box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .42); }
+.machine-ball { width: 27px; height: 27px; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(19, 33, 59, .28); }
+.machine-ball.blue { background: var(--blue); }
+.machine-ball.red { background: var(--red); }
+.lottery-stand { position: absolute; z-index: 3; bottom: 27px; left: 56px; width: 65px; height: 74px; border: 7px solid #bfc4c2; border-top: 0; border-radius: 0 0 8px 8px; filter: drop-shadow(0 3px 1px #69716f); }
+.lottery-stand::before { content: ""; position: absolute; top: 6px; left: 19px; width: 14px; height: 57px; background: linear-gradient(90deg, #eff3f1, #858e8a, #eff3f1); border-radius: 999px; }
+.lottery-crank { position: absolute; top: 16px; left: 28px; width: 57px; height: 11px; background: linear-gradient(#f3f5f2, #89918e); border: 2px solid #737b78; border-radius: 999px; transform-origin: left center; }
+.lottery-crank::after { content: ""; position: absolute; top: -9px; right: -20px; width: 26px; height: 26px; background: linear-gradient(135deg, #f4f5f0, #78817e); border: 3px solid #626966; border-radius: 50%; }
+.lottery-crank span { position: absolute; top: -16px; left: -8px; width: 18px; height: 42px; background: linear-gradient(90deg, #f3f5f2, #7f8784, #f3f5f2); border-radius: 999px; }
+.lottery-tray { position: absolute; z-index: 4; right: 11px; bottom: 12px; display: grid; place-items: center; width: 73px; height: 27px; background: linear-gradient(#fffefa, #dcc99c); border: 4px solid #c99556; border-radius: 4px 4px 14px 14px; box-shadow: inset 0 3px 4px rgba(92, 58, 29, .16); }
+.draw-placeholder { display: grid; place-items: center; width: 42px; height: 42px; color: transparent; background: #dfe4df; border: 3px solid white; border-radius: 50%; box-shadow: 0 3px 8px rgba(19, 33, 59, .24); }
 .draw-placeholder.blue { background: var(--blue); }
 .draw-placeholder.red { background: var(--red); }
+.draw-controls { display: grid; gap: 12px; width: 100%; }
+.draw-result { display: flex; align-items: center; min-height: 74px; padding: 14px 16px; background: var(--paper); border: 2px solid transparent; border-radius: 12px; transition: border-color .2s, background .2s; }
+.draw-result small { display: block; color: var(--muted); font-size: 12px; font-weight: 900; }
+.draw-result strong { display: block; line-height: 1.4; }
 .draw-button, .declaration button, .result-actions button {
   min-height: 52px;
   color: white;
@@ -117,10 +132,20 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
   cursor: pointer;
   transition: transform .1s, box-shadow .1s, opacity .2s;
 }
-.draw-button { width: 100%; margin-top: 20px; }
+.draw-button { width: 100%; }
 .draw-button:hover:not(:disabled), .declaration button:hover:not(:disabled), .result-actions button:hover { transform: translateY(-2px); box-shadow: 0 9px 0 #c94317; }
 .draw-button:active:not(:disabled), .declaration button:active:not(:disabled), .result-actions button:active { transform: translateY(2px); box-shadow: 0 3px 0 #c94317; }
 .draw-button:disabled { opacity: .45; cursor: not-allowed; }
+.draw-station.drawing .draw-result { border-color: var(--orange); background: #fff5e9; }
+.draw-station.drawing .drum-face { animation: drumTurn .45s linear infinite; }
+.draw-station.drawing .machine-ball { animation: ballMix .3s ease-in-out infinite alternate; }
+.draw-station.drawing .lottery-crank { animation: crankTurn .45s linear infinite; }
+.draw-station.just-drawn .draw-placeholder { animation: ballDrop .45s cubic-bezier(.2, .9, .35, 1.35); }
+.draw-station.just-drawn .draw-result { border-color: var(--orange); }
+@keyframes drumTurn { to { transform: rotate(360deg); } }
+@keyframes crankTurn { 50% { transform: rotate(55deg); } }
+@keyframes ballMix { to { transform: translate(4px, -5px) rotate(20deg); } }
+@keyframes ballDrop { 0% { transform: translateY(-84px) scale(.65); opacity: 0; } 70% { transform: translateY(5px) scale(1.13); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
 .return-note { margin: 16px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; text-align: center; }
 
 .status { padding: 20px 22px; color: white; background: var(--navy); border-radius: 12px; }
@@ -195,11 +220,15 @@ footer strong { color: white; }
   .game, .explanation { padding: 68px 18px; }
   .game-heading { align-items: start; flex-direction: column; }
   .observation-panel, .inference-panel { padding: 22px 18px; }
-  .mystery-box { width: 164px; height: 140px; }
+  .draw-station { gap: 12px; }
+  .lottery-machine { width: 215px; }
+  .draw-controls { width: 100%; }
+  .draw-result { min-height: 74px; }
+  .draw-button { min-height: 58px; }
   .declaration div { grid-template-columns: 1fr; }
   footer { display: grid; gap: 6px; text-align: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition-duration: .01ms !important; }
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }

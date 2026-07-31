@@ -61,20 +61,30 @@
 
       <div class="game-grid">
         <div class="observation-panel">
-          <div class="mystery-box" id="mysteryBox" aria-label="中身が隠された箱">
-            <span id="boxMark">?</span>
-            <small id="boxHint">青が多い？ 赤が多い？</small>
-          </div>
-
-          <div class="draw-result" id="drawResult" aria-live="polite">
-            <span class="draw-placeholder" id="drawBall">?</span>
-            <div>
-              <small>今回の観測</small>
-              <strong id="drawText">まだ球を引いていません</strong>
+          <p class="draw-intro">箱の中身は見えません。抽選機から出る球の色を観測して推理します。</p>
+          <div class="draw-station" id="drawStation">
+            <div class="lottery-machine" aria-label="木製のガラポン抽選機">
+              <div class="lottery-drum" aria-hidden="true">
+                <div class="drum-face">
+                  <i class="machine-ball blue"></i><i class="machine-ball red"></i><i class="machine-ball blue"></i>
+                  <i class="machine-ball red"></i><i class="machine-ball blue"></i><i class="machine-ball red"></i>
+                </div>
+              </div>
+              <div class="lottery-stand" aria-hidden="true">
+                <div class="lottery-crank"><span></span></div>
+              </div>
+              <div class="lottery-tray"><span class="draw-placeholder" id="drawBall"></span></div>
+            </div>
+            <div class="draw-controls">
+              <div class="draw-result" id="drawResult" aria-live="polite">
+                <div>
+                  <small>今回の観測</small>
+                  <strong id="drawText">まだ球を引いていません</strong>
+                </div>
+              </div>
+              <button type="button" class="draw-button" id="drawButton">球を1個引く</button>
             </div>
           </div>
-
-          <button type="button" class="draw-button" id="drawButton">球を1個引く</button>
           <p class="return-note">引いた球は確認した後、箱に戻して混ぜます。</p>
         </div>
 

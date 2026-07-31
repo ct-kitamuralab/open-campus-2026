@@ -2,12 +2,10 @@
   "use strict";
 
   const drawButton = document.querySelector("#drawButton");
+  const drawStation = document.querySelector("#drawStation");
   const nextButton = document.querySelector("#nextButton");
   const declaration = document.querySelector("#declaration");
   const resultActions = document.querySelector("#resultActions");
-  const mysteryBox = document.querySelector("#mysteryBox");
-  const boxMark = document.querySelector("#boxMark");
-  const boxHint = document.querySelector("#boxHint");
   const drawBall = document.querySelector("#drawBall");
   const drawText = document.querySelector("#drawText");
   const roundCount = document.querySelector("#roundCount");
@@ -27,6 +25,7 @@
   let hiddenBox = "A";
   let observations = [];
   let finished = false;
+  let drawing = false;
 
   function calculateProbabilityA() {
     const difference = observations.reduce((total, color) => {
@@ -98,22 +97,34 @@
   }
 
   function draw() {
-    if (finished) return;
+    if (finished || drawing) return;
 
-    const blueProbability = hiddenBox === "A" ? 0.75 : 0.25;
-    const color = Math.random() < blueProbability ? "blue" : "red";
-    const colorName = color === "blue" ? "青" : "赤";
+    drawing = true;
+    drawButton.disabled = true;
+    drawStation.classList.remove("just-drawn");
+    drawStation.classList.add("drawing");
+    drawText.textContent = "ガラガラ… 球を取り出しています";
 
-    observations.push(color);
-    drawBall.className = `draw-placeholder ${color}`;
-    drawBall.textContent = "";
-    drawText.textContent = `${colorName}い球が出ました`;
-    renderHistory();
+    window.setTimeout(() => {
+      const blueProbability = hiddenBox === "A" ? 0.75 : 0.25;
+      const color = Math.random() < blueProbability ? "blue" : "red";
+      const colorName = color === "blue" ? "青" : "赤";
 
-    const probability = renderProbabilities();
-    statusLabel.textContent = `OBSERVATION ${observations.length}`;
-    message.textContent = describeUpdate(color, probability);
-    declaration.disabled = false;
+      observations.push(color);
+      drawBall.className = `draw-placeholder ${color}`;
+      drawBall.textContent = "";
+      drawText.textContent = `${colorName}い球が出ました`;
+      renderHistory();
+
+      const probability = renderProbabilities();
+      statusLabel.textContent = `OBSERVATION ${observations.length}`;
+      message.textContent = describeUpdate(color, probability);
+      declaration.disabled = false;
+      drawStation.classList.remove("drawing");
+      drawStation.classList.add("just-drawn");
+      drawing = false;
+      drawButton.disabled = false;
+    }, 700);
   }
 
   function finish(guess) {
@@ -127,9 +138,6 @@
     statusLabel.textContent = correct ? "CORRECT" : "RESULT";
     const feature = hiddenBox === "A" ? "青が多い" : "赤が多い";
     message.textContent = `${resultText}。使われていたのは箱${hiddenBox}（${feature}箱）でした`;
-    mysteryBox.classList.add("revealed");
-    boxMark.textContent = hiddenBox;
-    boxHint.textContent = `${feature}箱`;
     drawButton.disabled = true;
     declaration.disabled = true;
     resultActions.hidden = false;
@@ -139,10 +147,9 @@
     hiddenBox = Math.random() < 0.5 ? "A" : "B";
     observations = [];
     finished = false;
+    drawing = false;
 
-    mysteryBox.classList.remove("revealed");
-    boxMark.textContent = "?";
-    boxHint.textContent = "青が多い？ 赤が多い？";
+    drawStation.classList.remove("drawing", "just-drawn");
     drawBall.className = "draw-placeholder";
     drawBall.textContent = "?";
     drawText.textContent = "まだ球を引いていません";
