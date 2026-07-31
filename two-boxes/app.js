@@ -99,16 +99,17 @@
   function draw() {
     if (finished || drawing) return;
 
+    const blueProbability = hiddenBox === "A" ? 0.75 : 0.25;
+    const color = Math.random() < blueProbability ? "blue" : "red";
+    const colorName = color === "blue" ? "青" : "赤";
+
     drawing = true;
     drawButton.disabled = true;
-    drawStation.classList.remove("just-drawn");
-    drawStation.classList.add("drawing");
-    drawText.textContent = "ガラガラ… 球を取り出しています";
+    drawStation.classList.remove("just-drawn", "draw-blue", "draw-red");
+    drawStation.classList.add("drawing", `draw-${color}`);
+    drawText.textContent = "箱を振って球を取り出しています…";
 
     window.setTimeout(() => {
-      const blueProbability = hiddenBox === "A" ? 0.75 : 0.25;
-      const color = Math.random() < blueProbability ? "blue" : "red";
-      const colorName = color === "blue" ? "青" : "赤";
 
       observations.push(color);
       drawBall.className = `draw-placeholder ${color}`;
@@ -136,8 +137,8 @@
 
     status.classList.add(correct ? "correct" : "incorrect");
     statusLabel.textContent = correct ? "CORRECT" : "RESULT";
-    const feature = hiddenBox === "A" ? "青が多い" : "赤が多い";
-    message.textContent = `${resultText}。使われていたのは箱${hiddenBox}（${feature}箱）でした`;
+    const balls = hiddenBox === "A" ? "青3個・赤1個" : "青1個・赤3個";
+    message.textContent = `${resultText}。使われていたのは箱${hiddenBox}（${balls}）でした`;
     drawButton.disabled = true;
     declaration.disabled = true;
     resultActions.hidden = false;
@@ -151,7 +152,7 @@
 
     drawStation.classList.remove("drawing", "just-drawn");
     drawBall.className = "draw-placeholder";
-    drawBall.textContent = "?";
+    drawBall.textContent = "";
     drawText.textContent = "まだ球を引いていません";
     status.classList.remove("correct", "incorrect");
     statusLabel.textContent = "START";

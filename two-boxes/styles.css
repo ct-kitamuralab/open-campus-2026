@@ -81,44 +81,21 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 .game-grid { display: grid; grid-template-columns: minmax(280px, .7fr) minmax(480px, 1.3fr); gap: 24px; max-width: 1180px; margin: 0 auto; }
 .observation-panel, .inference-panel { padding: 30px; background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 14px 42px rgba(19, 33, 59, .08); }
 
-.mystery-box {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  width: 190px;
-  height: 160px;
-  margin: 0 auto 28px;
-  color: white;
-  background: linear-gradient(155deg, #294476, #10203e);
-  border: 8px solid #0d1a32;
-  border-radius: 8px 8px 18px 18px;
-  box-shadow: 0 14px 0 #091428, 0 22px 36px rgba(19, 33, 59, .2);
-  transition: background .3s, transform .3s;
-}
-.mystery-box span { font: italic 62px Georgia, serif; line-height: 1; }
-.mystery-box small { color: #c8d1e2; font-weight: 900; }
-.mystery-box.revealed { color: var(--navy); background: linear-gradient(155deg, #f5f985, var(--lime)); border-color: #becd20; transform: translateY(-5px); }
-.mystery-box.revealed small { color: var(--navy); }
 .draw-intro { margin: 0 0 16px; color: var(--muted); font-size: 14px; font-weight: 800; text-align: center; }
 .draw-station { display: grid; justify-items: center; gap: 14px; }
-.lottery-machine { position: relative; width: 215px; height: 190px; }
-.lottery-machine::after { content: ""; position: absolute; right: 2px; bottom: 4px; width: 114px; height: 34px; background: linear-gradient(160deg, #fffdf6, #ead7ad); border: 5px solid #c99556; border-radius: 4px 18px 18px 4px; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .7), 0 5px 0 #a66f39; }
-.lottery-drum { position: absolute; top: 2px; left: 27px; z-index: 2; width: 139px; height: 139px; padding: 10px; background: linear-gradient(135deg, #f6c984, #c8833e); clip-path: polygon(29% 0, 71% 0, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0 71%, 0 29%); filter: drop-shadow(0 8px 0 #965d29) drop-shadow(0 12px 14px rgba(19, 33, 59, .2)); }
-.drum-face { display: grid; grid-template-columns: repeat(3, 27px); gap: 8px; place-content: center; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255, 245, 216, .86), rgba(213, 144, 69, .36)); clip-path: inherit; box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .42); }
-.machine-ball { width: 27px; height: 27px; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(19, 33, 59, .28); }
-.machine-ball.blue { background: var(--blue); }
-.machine-ball.red { background: var(--red); }
-.lottery-stand { position: absolute; z-index: 3; bottom: 27px; left: 56px; width: 65px; height: 74px; border: 7px solid #bfc4c2; border-top: 0; border-radius: 0 0 8px 8px; filter: drop-shadow(0 3px 1px #69716f); }
-.lottery-stand::before { content: ""; position: absolute; top: 6px; left: 19px; width: 14px; height: 57px; background: linear-gradient(90deg, #eff3f1, #858e8a, #eff3f1); border-radius: 999px; }
-.lottery-crank { position: absolute; top: 16px; left: 28px; width: 57px; height: 11px; background: linear-gradient(#f3f5f2, #89918e); border: 2px solid #737b78; border-radius: 999px; transform-origin: left center; }
-.lottery-crank::after { content: ""; position: absolute; top: -9px; right: -20px; width: 26px; height: 26px; background: linear-gradient(135deg, #f4f5f0, #78817e); border: 3px solid #626966; border-radius: 50%; }
-.lottery-crank span { position: absolute; top: -16px; left: -8px; width: 18px; height: 42px; background: linear-gradient(90deg, #f3f5f2, #7f8784, #f3f5f2); border-radius: 999px; }
-.lottery-tray { position: absolute; z-index: 4; right: 11px; bottom: 12px; display: grid; place-items: center; width: 73px; height: 27px; background: linear-gradient(#fffefa, #dcc99c); border: 4px solid #c99556; border-radius: 4px 4px 14px 14px; box-shadow: inset 0 3px 4px rgba(92, 58, 29, .16); }
-.draw-placeholder { display: grid; place-items: center; width: 42px; height: 42px; color: transparent; background: #dfe4df; border: 3px solid white; border-radius: 50%; box-shadow: 0 3px 8px rgba(19, 33, 59, .24); }
+.mystery-box { position: relative; width: 210px; height: 190px; filter: drop-shadow(0 12px 12px rgba(19, 33, 59, .2)); transform-origin: 50% 80%; }
+.box-top { position: absolute; z-index: 2; top: 8px; left: 18px; width: 174px; height: 66px; background: linear-gradient(150deg, #ffd84d, #f4b900); border: 3px solid #d78e00; clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); }
+.box-hole { position: absolute; top: 15px; left: 50%; width: 78px; height: 29px; background: radial-gradient(ellipse, #111 20%, #333 66%, #111); border: 3px solid #c98c05; border-radius: 50%; transform: translateX(-50%); box-shadow: inset 0 4px 6px #000; }
+.box-body { position: absolute; z-index: 1; left: 18px; bottom: 5px; display: grid; place-items: center; width: 174px; height: 119px; background: repeating-linear-gradient(90deg, #e9382e 0 29px, #ffc928 29px 58px); border: 3px solid #c82922; border-top-color: #d78e00; border-radius: 0 0 7px 7px; box-shadow: inset 0 -8px 12px rgba(125, 23, 10, .12); }
+.box-question { display: grid; place-items: center; width: 76px; height: 76px; color: #e62f29; background: #fff; border-radius: 50%; box-shadow: 0 3px 8px rgba(102, 26, 18, .2); font: 900 54px/1 Georgia, serif; }
+.box-draw-ball { position: absolute; z-index: 4; top: 17px; left: 50%; width: 34px; height: 34px; border: 3px solid white; border-radius: 50%; box-shadow: 0 4px 8px rgba(19, 33, 59, .28); opacity: 0; transform: translate(-50%, 8px) scale(.4); }
+.draw-blue .box-draw-ball { background: var(--blue); }
+.draw-red .box-draw-ball { background: var(--red); }
+.draw-placeholder { display: grid; place-items: center; flex: none; width: 48px; height: 48px; color: transparent; background: #dfe4df; border: 3px solid white; border-radius: 50%; box-shadow: 0 3px 8px rgba(19, 33, 59, .24); }
 .draw-placeholder.blue { background: var(--blue); }
 .draw-placeholder.red { background: var(--red); }
 .draw-controls { display: grid; gap: 12px; width: 100%; }
-.draw-result { display: flex; align-items: center; min-height: 74px; padding: 14px 16px; background: var(--paper); border: 2px solid transparent; border-radius: 12px; transition: border-color .2s, background .2s; }
+.draw-result { display: flex; align-items: center; gap: 14px; min-height: 74px; padding: 14px 16px; background: var(--paper); border: 2px solid transparent; border-radius: 12px; transition: border-color .2s, background .2s; }
 .draw-result small { display: block; color: var(--muted); font-size: 12px; font-weight: 900; }
 .draw-result strong { display: block; line-height: 1.4; }
 .draw-button, .declaration button, .result-actions button {
@@ -137,15 +114,13 @@ h1 em { color: var(--orange); font-family: Georgia, "Yu Mincho", serif; font-wei
 .draw-button:active:not(:disabled), .declaration button:active:not(:disabled), .result-actions button:active { transform: translateY(2px); box-shadow: 0 3px 0 #c94317; }
 .draw-button:disabled { opacity: .45; cursor: not-allowed; }
 .draw-station.drawing .draw-result { border-color: var(--orange); background: #fff5e9; }
-.draw-station.drawing .drum-face { animation: drumTurn .45s linear infinite; }
-.draw-station.drawing .machine-ball { animation: ballMix .3s ease-in-out infinite alternate; }
-.draw-station.drawing .lottery-crank { animation: crankTurn .45s linear infinite; }
-.draw-station.just-drawn .draw-placeholder { animation: ballDrop .45s cubic-bezier(.2, .9, .35, 1.35); }
+.draw-station.drawing .mystery-box { animation: boxShake .52s ease-in-out; }
+.draw-station.drawing .box-draw-ball { animation: ballFromHole .7s cubic-bezier(.18, .76, .28, 1) both; }
+.draw-station.just-drawn .draw-placeholder { animation: ballAppear .45s cubic-bezier(.2, .9, .35, 1.35); }
 .draw-station.just-drawn .draw-result { border-color: var(--orange); }
-@keyframes drumTurn { to { transform: rotate(360deg); } }
-@keyframes crankTurn { 50% { transform: rotate(55deg); } }
-@keyframes ballMix { to { transform: translate(4px, -5px) rotate(20deg); } }
-@keyframes ballDrop { 0% { transform: translateY(-84px) scale(.65); opacity: 0; } 70% { transform: translateY(5px) scale(1.13); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
+@keyframes boxShake { 0%, 100% { transform: rotate(0); } 18% { transform: rotate(-4deg) translateX(-4px); } 36% { transform: rotate(4deg) translateX(4px); } 54% { transform: rotate(-3deg) translateX(-3px); } 72% { transform: rotate(2deg) translateX(2px); } }
+@keyframes ballFromHole { 0%, 52% { transform: translate(-50%, 8px) scale(.4); opacity: 0; } 65% { opacity: 1; } 82% { transform: translate(-50%, -52px) scale(1.08); opacity: 1; } 100% { transform: translate(-50%, -70px) scale(.65); opacity: 0; } }
+@keyframes ballAppear { 0% { transform: translateY(-18px) scale(.4); opacity: 0; } 70% { transform: translateY(3px) scale(1.16); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
 .return-note { margin: 16px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; text-align: center; }
 
 .status { padding: 20px 22px; color: white; background: var(--navy); border-radius: 12px; }
@@ -221,7 +196,7 @@ footer strong { color: white; }
   .game-heading { align-items: start; flex-direction: column; }
   .observation-panel, .inference-panel { padding: 22px 18px; }
   .draw-station { gap: 12px; }
-  .lottery-machine { width: 215px; }
+  .mystery-box { width: 224px; }
   .draw-controls { width: 100%; }
   .draw-result { min-height: 74px; }
   .draw-button { min-height: 58px; }
