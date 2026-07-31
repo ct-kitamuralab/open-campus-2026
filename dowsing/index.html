@@ -90,8 +90,12 @@
           <div class="model-points">
             <span><b>近い</b> → 平均的には強い反応</span>
             <span><b>遠い</b> → 平均的には弱い反応</span>
-            <span><b>ノイズ</b> → 毎回少し値がぶれる</span>
+            <span><b>ノイズ</b> → 正規分布に従って値がぶれる</span>
           </div>
+          <p class="sensor-model-summary">
+            観測値は、距離で決まる平均 <b>μ</b> と標準偏差 <b>σ</b> を持つ正規分布から生成します。
+            難易度ごとの値はゲーム開始前に確認できます。
+          </p>
         </div>
       </div>
 
@@ -112,122 +116,173 @@
     </section>
 
     <section id="game" class="game-section section">
-      <div class="section-heading game-heading">
-        <div>
-          <p class="eyebrow">TREASURE HUNT EXPERIMENT</p>
-          <h2>お宝予想マップ、本当に役立つ？</h2>
-        </div>
-        <p>2つのラウンドを遊んで、見つけるまでのクリック数を比べよう。</p>
-      </div>
-
       <div class="game-shell">
-        <div class="mission-note">
-          <span>MISSION</span>
-          <p><strong>宝箱の発信機を探せ。</strong> ロッド型センサーの値は、近いほど強くなる傾向があります。ただし測定ノイズがあるため、1回の反応だけでは場所を断定できません。</p>
-        </div>
-        <div class="observation-conditions" aria-live="polite">
-          <span>観測条件</span>
-          <strong id="conditionModel"></strong>
-          <small>予想マップも同じ条件で計算</small>
-        </div>
-        <div class="game-topbar">
-          <div id="roundProgress" class="round-progress" aria-label="進行状況"></div>
-          <label class="difficulty-label">
-            難易度
-            <select id="difficulty">
-              <option value="easy">入門（8×8・誤差小）</option>
-              <option value="normal" selected>標準（10×10）</option>
-              <option value="hard">挑戦（12×12・誤差大）</option>
-            </select>
-          </label>
-        </div>
-
-        <div id="gamePlay" class="game-play">
-          <div class="board-panel">
-            <div class="board-caption">
-              <div class="board-title">
-                <span id="roundBadge" class="status-badge plain">ヒントなし</span>
-                <h3 id="roundTitle">センサー反応だけで探そう</h3>
-              </div>
-              <span class="mobile-click-count">調査 <b id="mobileClickCount">0</b>回</span>
-              <button id="resetButton" class="text-button" type="button">↻ 最初から</button>
-            </div>
-            <p id="roundInstruction" class="instruction">怪しいマスをクリック。色は変わらないので、反応の強さを覚えて推理しよう。</p>
-            <div class="mobile-sensor-card" aria-live="polite">
-              <div class="sensor-heading">
-                <span>ロッド型センサーの反応</span>
-                <strong id="mobileReadingLabel">まだ観測していません</strong>
-              </div>
-              <div class="meter"><i id="mobileMeterFill"></i></div>
-              <p id="mobileReadingText">地面を1マス選んで、ロッドをかざしてみよう。</p>
-            </div>
-            <div id="grid" class="search-grid" role="grid" aria-label="宝箱探索グリッド"></div>
-            <div class="legend" id="legend">
-              <span>未調査</span>
-              <span class="legend-box checked"></span><span>調査済み</span>
-            </div>
+        <div id="gameSetup" class="game-setup">
+          <div class="setup-copy">
+            <p class="eyebrow">TREASURE HUNT EXPERIMENT</p>
+            <h2>お宝予想マップ、<br>本当に役立つ？</h2>
+            <p>同じ観測モデルを使って、ヒントなしとベイズありの2ラウンドを比べます。</p>
           </div>
 
-          <aside class="game-sidebar">
-            <div class="counter-card">
-              <span>調べた回数</span>
-              <strong><b id="clickCount">0</b><small> 回</small></strong>
-            </div>
+          <div class="setup-panel">
+            <label class="setup-difficulty">
+              <span>難易度を選ぶ</span>
+              <select id="difficulty">
+                <option value="easy">入門（8×8）</option>
+                <option value="normal" selected>標準（10×10）</option>
+                <option value="hard">挑戦（12×12）</option>
+              </select>
+            </label>
 
-            <div class="sensor-card">
-              <div class="sensor-heading">
-                <span>ロッド型センサーの反応</span>
-                <strong id="readingLabel">まだ観測していません</strong>
+            <section class="model-card" aria-labelledby="model-card-title" aria-live="polite">
+              <div class="model-card-heading">
+                <div>
+                  <span>選択中の観測条件</span>
+                  <h3 id="model-card-title"><b id="setupLevelName">標準</b>モード</h3>
+                </div>
+                <button class="info-button" type="button" data-model-help aria-label="観測モデルの詳しい説明を見る"
+                  aria-haspopup="dialog">i</button>
               </div>
-              <div class="meter"><i id="meterFill"></i></div>
-              <div class="meter-scale"><span>弱い</span><span>強い</span></div>
-              <p id="readingText">マスを1つ選んでみよう。</p>
-            </div>
+              <p id="setupFormula" class="model-formula"></p>
+              <dl class="model-values">
+                <div>
+                  <dt>宝箱の真上での平均反応</dt>
+                  <dd id="setupSignal"></dd>
+                </div>
+                <div>
+                  <dt>標準偏差 <button class="term-help" type="button" data-model-help aria-label="標準偏差の説明を見る">σ</button>
+                  </dt>
+                  <dd id="setupNoise"></dd>
+                </div>
+              </dl>
+              <p id="setupRange" class="model-range"></p>
+              <p class="model-shared">予想マップも、この正規分布を使って各マスの確率を更新します。</p>
+            </section>
 
-            <div id="bayesTip" class="bayes-tip" hidden>
-              <span class="tip-icon">✦</span>
-              <div>
-                <strong>お宝予想マップ</strong>
-                <p id="tipText">色は0〜20%以上の固定目盛り。✦ は確率の高さにかかわらず、現在の1位を示します。</p>
-              </div>
-            </div>
-
-            <div class="mini-log">
-              <h4>観測メモ</h4>
-              <ol id="historyLog">
-                <li class="empty-log">まだ記録はありません</li>
-              </ol>
-            </div>
-          </aside>
-        </div>
-
-        <div id="roundComplete" class="modal-layer" hidden>
-          <div class="complete-card">
-            <div class="complete-icon">✓</div>
-            <p id="completeEyebrow" class="eyebrow">ROUND 1 COMPLETE</p>
-            <h3>宝箱を発見！</h3>
-            <p id="completeMessage"></p>
-            <button id="nextRoundButton" class="primary-button" type="button">ベイズありに挑戦 <span>→</span></button>
+            <button id="startGameButton" class="primary-button setup-start" type="button">この条件で始める
+              <span>→</span></button>
           </div>
         </div>
 
-        <div id="resultPanel" class="result-panel" hidden>
-          <p class="eyebrow">YOUR RESULT</p>
-          <h3 id="resultHeadline">比較結果</h3>
-          <div class="score-comparison">
-            <div class="score plain-score">
-              <span>ヒントなし</span>
-              <strong id="plainScore">--</strong><small>回</small>
-            </div>
-            <div class="versus">VS</div>
-            <div class="score bayes-score">
-              <span>ベイズあり</span>
-              <strong id="bayesScore">--</strong><small>回</small>
+        <div id="gameInterface" class="game-interface" hidden>
+          <div class="game-topbar">
+            <div id="roundProgress" class="round-progress" aria-label="進行状況"></div>
+            <div class="play-actions">
+              <button class="condition-chip" type="button" data-model-help aria-label="現在の観測条件を見る">
+                <span id="playLevelName">標準</span><b id="playNoise">σ=1.35</b><i aria-hidden="true">i</i>
+              </button>
+              <button id="sidebarToggle" class="tool-button" type="button" aria-expanded="false"
+                aria-controls="gameSidebar">観測メモ</button>
+              <button id="resetButton" class="tool-button reset-button" type="button" aria-label="リセット"><span
+                  aria-hidden="true">↻</span> <span class="reset-label">リセット</span></button>
             </div>
           </div>
-          <div id="resultInsight" class="result-insight"></div>
-          <p class="fairness-note">※ 宝箱の位置は各ラウンドで変わります。1回の結果には運もあるので、何度か冒険すると傾向が見えてきます。</p>
-          <button id="playAgainButton" class="primary-button" type="button">もう一度冒険する <span>↻</span></button>
+
+          <div id="gamePlay" class="game-play">
+            <div class="board-panel">
+              <div class="board-caption">
+                <div class="board-title">
+                  <span id="roundBadge" class="status-badge plain">ヒントなし</span>
+                  <h3 id="roundTitle">センサー反応だけで探そう</h3>
+                </div>
+                <span class="mobile-click-count">調査 <b id="mobileClickCount">0</b>回</span>
+              </div>
+              <p id="roundInstruction" class="instruction">怪しいマスをクリック。色は変わらないので、反応の強さを覚えて推理しよう。</p>
+              <div class="mobile-sensor-card" aria-live="polite">
+                <div class="sensor-heading">
+                  <span>センサー反応</span>
+                  <strong id="mobileReadingLabel">まだ観測していません</strong>
+                </div>
+                <div class="meter"><i id="mobileMeterFill"></i></div>
+                <p id="mobileReadingText">マスを1つ選んでみよう。</p>
+              </div>
+              <div id="grid" class="search-grid" role="grid" aria-label="宝箱探索グリッド"></div>
+              <div class="legend" id="legend">
+                <span>未調査</span>
+                <span class="legend-box checked"></span><span>調査済み</span>
+              </div>
+            </div>
+
+            <aside id="gameSidebar" class="game-sidebar" aria-label="観測情報">
+              <div class="sidebar-heading">
+                <strong>観測情報</strong>
+                <button id="sidebarClose" type="button" aria-label="観測情報を閉じる">×</button>
+              </div>
+              <div class="counter-card">
+                <span>調べた回数</span>
+                <strong><b id="clickCount">0</b><small> 回</small></strong>
+              </div>
+
+              <div class="sensor-card">
+                <div class="sensor-heading">
+                  <span>ロッド型センサーの反応</span>
+                  <strong id="readingLabel">まだ観測していません</strong>
+                </div>
+                <div class="meter"><i id="meterFill"></i></div>
+                <div class="meter-scale"><span>弱い</span><span>強い</span></div>
+                <p id="readingText">マスを1つ選んでみよう。</p>
+              </div>
+
+              <div id="bayesTip" class="bayes-tip" hidden>
+                <span class="tip-icon">✦</span>
+                <div>
+                  <strong>お宝予想マップ</strong>
+                  <p id="tipText">色は0〜20%以上の固定目盛り。✦ は確率の高さにかかわらず、現在の1位を示します。</p>
+                </div>
+              </div>
+
+              <div class="mini-log">
+                <h4>観測メモ</h4>
+                <ol id="historyLog">
+                  <li class="empty-log">まだ記録はありません</li>
+                </ol>
+              </div>
+            </aside>
+          </div>
+
+          <div id="roundComplete" class="modal-layer" hidden>
+            <div class="complete-card">
+              <div class="complete-icon">✓</div>
+              <p id="completeEyebrow" class="eyebrow">ROUND 1 COMPLETE</p>
+              <h3>宝箱を発見！</h3>
+              <p id="completeMessage"></p>
+              <button id="nextRoundButton" class="primary-button" type="button">ベイズありに挑戦 <span>→</span></button>
+            </div>
+          </div>
+
+          <div id="resultPanel" class="result-panel" hidden>
+            <p class="eyebrow">YOUR RESULT</p>
+            <h3 id="resultHeadline">比較結果</h3>
+            <div class="score-comparison">
+              <div class="score plain-score">
+                <span>ヒントなし</span>
+                <strong id="plainScore">--</strong><small>回</small>
+              </div>
+              <div class="versus">VS</div>
+              <div class="score bayes-score">
+                <span>ベイズあり</span>
+                <strong id="bayesScore">--</strong><small>回</small>
+              </div>
+            </div>
+            <div id="resultInsight" class="result-insight"></div>
+            <p class="fairness-note">※ 宝箱の位置は各ラウンドで変わります。何度か冒険すると傾向が見えてきます。</p>
+            <button id="playAgainButton" class="primary-button" type="button">もう一度冒険する <span>↻</span></button>
+          </div>
+        </div>
+
+        <div id="modelHelp" class="model-help" role="dialog" aria-modal="true" aria-labelledby="model-help-title"
+          hidden>
+          <div class="model-help-card">
+            <button id="modelHelpClose" class="model-help-close" type="button" aria-label="閉じる">×</button>
+            <p class="eyebrow">OBSERVATION MODEL</p>
+            <h3 id="model-help-title">正規分布と標準偏差</h3>
+            <p>センサー値は、距離から決まる平均 <b>μ</b> を中心に、正規分布に従ってばらつきます。</p>
+            <p class="model-help-formula">観測値 ~ N(μ, σ²)<br>μ = 真上での平均反応 ÷ (距離 + 1)</p>
+            <p><b>標準偏差 σ</b> は、値のばらつきの大きさです。約68%の観測値が平均±σ、約95%が平均±2σに入ります。正規分布には下限がないため、弱い反応では負の値が出ることもあります。</p>
+            <p>ベイズありの予想マップも、この平均と標準偏差を使って各マスの尤度を計算します。</p>
+            <button id="returnSetupButton" class="text-button model-settings-button"
+              type="button">難易度・観測条件を変更する</button>
+          </div>
         </div>
       </div>
     </section>
@@ -289,29 +344,15 @@
             <p class="bayes-noise-label">IN THIS GAME</p>
             <h3>OC宝探しのセンサーには、どんなノイズがある？</h3>
             <p>このゲームの反応値は、宝箱までの距離から予想される反応に、平均0のランダムな揺らぎを加えて作られます。揺らぎは正規分布に従うため、たいていは小さく、ときどき大きくぶれます。</p>
-            <p class="bayes-formula">反応値 = 距離から予想される反応 + ランダムな揺らぎ</p>
-            <dl class="bayes-noise-levels">
-              <div>
-                <dt>入門</dt>
-                <dd>ノイズ 0.65</dd>
-              </div>
-              <div>
-                <dt>標準</dt>
-                <dd>ノイズ 1.35</dd>
-              </div>
-              <div>
-                <dt>挑戦</dt>
-                <dd>ノイズ 2.1</dd>
-              </div>
-            </dl>
-            <p>難易度が上がるほどノイズが大きくなり、1回の測定だけでは場所を判断しにくくなります。ベイズ推論はこのノイズ量も含めて尤度を計算するため、観測を重ねるほど複数の手がかりに合うマスへ確率が集まりやすくなります。
-            </p>
+            <p class="bayes-formula">反応値 = 距離から予想される反応 + N(0, σ²)</p>
+            <p>標準偏差 σ が大きいほど1回の値は大きくぶれます。ベイズ推論は開始前に示した σ を使い、1回の値を断定材料にせず確率を更新します。</p>
           </article>
         </div>
       </details>
 
       <p class="bayes-column-summary">
-        <strong>つまり：</strong>センサーで新しい手がかりを得るたびに、「今までの予想」を「今回の反応の出やすさ」で修正し、宝箱がありそうなマスへ確率を少しずつ再分配しています。</p>
+        <strong>つまり：</strong>センサーで新しい手がかりを得るたびに、「今までの予想」を「今回の反応の出やすさ」で修正し、宝箱がありそうなマスへ確率を少しずつ再分配しています。
+      </p>
     </section>
 
     <section class="discussion section">

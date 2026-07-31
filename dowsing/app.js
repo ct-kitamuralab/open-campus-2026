@@ -9,6 +9,7 @@
 
   const $ = (selector) => document.querySelector(selector);
   const grid = $("#grid");
+  const sidebarMedia = window.matchMedia("(max-width: 900px)");
   const state = {
     round: "plain",
     scores: { plain: null, bayes: null },
@@ -16,7 +17,8 @@
     clicks: 0,
     history: [],
     probabilities: [],
-    finished: false
+    finished: false,
+    modelHelpTrigger: null
   };
 
   function gaussianRandom() {
@@ -50,6 +52,7 @@
     $("#roundComplete").hidden = true;
     $("#resultPanel").hidden = true;
     $("#gamePlay").hidden = false;
+    closeSidebar();
     updateRoundUI();
     renderGrid();
     renderStatus();
@@ -74,7 +77,38 @@
 
   function renderConditions() {
     const { signal, noise } = params();
-    $("#conditionModel").textContent = `最大反応 ${signal} / ノイズ σ=${noise}`;
+    const names = { easy: "入門", normal: "標準", hard: "挑戦" };
+    const name = names[$("#difficulty").value];
+    $("#setupLevelName").textContent = name;
+    $("#setupFormula").textContent = `観測値 ~ N(μ, σ²)　μ = ${signal} ÷ (距離 + 1)`;
+    $("#setupSignal").textContent = signal;
+    $("#setupNoise").textContent = noise;
+    $("#setupRange").textContent = `約68%の観測値が平均 μ ± ${noise} に入ります。正規分布のため、負の値もあり得ます。`;
+    $("#playLevelName").textContent = name;
+    $("#playNoise").textContent = `σ=${noise}`;
+  }
+
+  function openModelHelp(trigger) {
+    state.modelHelpTrigger = trigger;
+    $("#modelHelp").hidden = false;
+    $("#modelHelpClose").focus();
+  }
+
+  function closeModelHelp() {
+    $("#modelHelp").hidden = true;
+    state.modelHelpTrigger?.focus();
+    state.modelHelpTrigger = null;
+  }
+
+  function closeSidebar() {
+    $("#gameSidebar").classList.remove("open");
+    $("#sidebarToggle").setAttribute("aria-expanded", "false");
+    $("#gameSidebar").setAttribute("aria-hidden", String(sidebarMedia.matches));
+  }
+
+  function syncSidebarAccessibility() {
+    const isOpen = $("#gameSidebar").classList.contains("open");
+    $("#gameSidebar").setAttribute("aria-hidden", String(sidebarMedia.matches && !isOpen));
   }
 
   function renderProgress(showResult = false) {
@@ -183,7 +217,7 @@
     const ty = Math.floor(state.target / size);
     const distance = Math.hypot(x - tx, y - ty);
     const expected = signal / (distance + 1);
-    const reading = Math.max(0, expected + gaussianRandom() * noise);
+    const reading = expected + gaussianRandom() * noise;
 
     updateBayes(index, reading);
     state.clicks += 1;
@@ -223,8 +257,8 @@
       $("#mobileReadingText").textContent = "地面を1マス選んで、ロッドをかざしてみよう。";
       $("#mobileMeterFill").style.width = "0";
     } else {
-      const strength = Math.min(100, Math.round(reading / params().signal * 100));
-      const readingLabel = `${reading.toFixed(2)} / ${params().signal}`;
+      const strength = Math.max(0, Math.min(100, Math.round(reading / params().signal * 100)));
+      const readingLabel = reading.toFixed(2);
       const readingText =
         strength >= 70 ? "ロッドが大きく揺れた！ 宝箱はすぐ近くかも。" :
           strength >= 40 ? "ロッドが反応している。この辺りは怪しそう。" :
@@ -310,6 +344,13 @@
   }
 
   $("#nextRoundButton").addEventListener("click", nextStage);
+  $("#startGameButton").addEventListener("click", () => {
+    $("#gameSetup").hidden = true;
+    $("#gameInterface").hidden = false;
+    state.scores = { plain: null, bayes: null };
+    newRound("plain");
+    $("#game").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   $("#playAgainButton").addEventListener("click", () => {
     state.scores = { plain: null, bayes: null };
     newRound("plain");
@@ -320,9 +361,36 @@
     newRound(state.round);
   });
   $("#difficulty").addEventListener("change", () => {
-    state.scores = { plain: null, bayes: null };
-    newRound(state.round);
+    renderConditions();
   });
+  $("#sidebarToggle").addEventListener("click", () => {
+    const sidebar = $("#gameSidebar");
+    const isOpen = sidebar.classList.toggle("open");
+    $("#sidebarToggle").setAttribute("aria-expanded", String(isOpen));
+    syncSidebarAccessibility();
+    if (isOpen) $("#sidebarClose").focus();
+  });
+  $("#sidebarClose").addEventListener("click", closeSidebar);
+  document.querySelectorAll("[data-model-help]").forEach((button) => {
+    button.addEventListener("click", () => openModelHelp(button));
+  });
+  $("#modelHelpClose").addEventListener("click", closeModelHelp);
+  $("#returnSetupButton").addEventListener("click", () => {
+    closeModelHelp();
+    closeSidebar();
+    $("#gameInterface").hidden = true;
+    $("#gameSetup").hidden = false;
+    state.scores = { plain: null, bayes: null };
+  });
+  $("#modelHelp").addEventListener("click", (event) => {
+    if (event.target === $("#modelHelp")) closeModelHelp();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !$("#modelHelp").hidden) closeModelHelp();
+    if (event.key === "Escape") closeSidebar();
+  });
+  sidebarMedia.addEventListener("change", syncSidebarAccessibility);
 
-  newRound("plain");
+  syncSidebarAccessibility();
+  renderConditions();
 })();
