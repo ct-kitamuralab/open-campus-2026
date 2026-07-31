@@ -23,6 +23,7 @@ footer small {
 @media (max-width: 600px) {
   footer {
     display: grid;
+    justify-content: center;
     justify-items: center;
     gap: 8px;
     padding: 28px 20px;
